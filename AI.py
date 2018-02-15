@@ -2,7 +2,7 @@ import argparse
 import sys
 
 board = [[], [], []]
-
+LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O']
 def print_board():
     global board
     print("---------------")
@@ -28,6 +28,10 @@ def build_board(line):
 def solve_board():
     global board
     print("Start solving the board here")
+
+def verifyMove(move, cellToMove):
+    #Idea would be to check if the cell is e or not. If it's e then the move is valid
+    print("Temp")
 
 def solve_file_problems(filename):
     with open(filename) as file:
