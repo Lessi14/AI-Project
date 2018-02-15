@@ -52,6 +52,8 @@ def inputCheck(userInputCheck):
 
     if (type(userInputCheck) != str):
         return False
+    if (len(userInputCheck.split()) > 1):
+        return False
     if (userInputCheck == 'right' and userInputCheck == 'left'
         and userInputCheck == 'up' and userInputCheck == 'down'):
             print(userInputCheck)
@@ -74,7 +76,7 @@ def inputToEnum(inputCheck):
 
 # Verifies if the move is along the grid
 def verifyMove(move):
-    global MAX_ROW, MIN_ROW, MAX_COLUMN, MIN_COLUMN, x, y
+    global MAX_ROW, MIN_ROW, MAX_COLUMN, MIN_COLUMN, x, y, board
     tempy = y
     tempx = x
 
@@ -87,12 +89,18 @@ def verifyMove(move):
     else:
         tempx = tempx + 1
 
-    if tempx > MAX_ROW or tempx < MIN_ROW or tempy > MAX_COLUMN or tempy < MIN_COLUMN:
+    if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
         print("Illegal move! You cannot move " + str(move))
         return False
+    
+    previousX = x
+    previousY = y
     x = tempx
     y = tempy
-
+    
+    board[previousY][previousX] = board[y][x]
+    board[y][x] = "e"
+    
     return True
 
 
