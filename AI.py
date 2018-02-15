@@ -8,11 +8,13 @@ from enum import Enum
 
 
 class Moves(Enum):
-    Up = "Up",
-    Down = "Down",
-    Left = "Left",
-    Right = "Right",
-
+    Up = "up",
+    Down = "down",
+    Left = "left",
+    Right = "right",
+	
+    def __str__(self):
+        return '%s' % self._value_
 
 # Global variables
 MIN_ROW = 0
@@ -32,7 +34,6 @@ def gameLoop():
         userInput = input("What direction should the empty space move.")
         while not inputCheck(userInput):
             userInput = input("Please insert a valid input")
-            break
 
         # get Enum version of user input
         move = inputToEnum(userInput)
@@ -42,6 +43,7 @@ def gameLoop():
             print("You moved by " + str(x) + " and " + str(y))
 
         if (checkWinningCondition(board)):
+            print_board()
             print("You won")
             # Exitprogram
             sys.exit()
@@ -52,10 +54,8 @@ def inputCheck(userInputCheck):
 
     if (type(userInputCheck) != str):
         return False
-    if (len(userInputCheck.split()) > 1):
-        return False
-    if (userInputCheck == 'right' and userInputCheck == 'left'
-        and userInputCheck == 'up' and userInputCheck == 'down'):
+    if (userInputCheck != 'right' and userInputCheck != 'left'
+        and userInputCheck != 'up' and userInputCheck != 'down'):
             print(userInputCheck)
             print("not valid")
             return False
@@ -90,7 +90,7 @@ def verifyMove(move):
         tempx = tempx + 1
 
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
-        print("Illegal move! You cannot move " + str(move))
+        print("Illegal move! You cannot move " + str(move) + ".")
         return False
     
     previousX = x
