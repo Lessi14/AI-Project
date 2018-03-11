@@ -34,9 +34,9 @@ totalTime = 0
 
 def gameLoop():
     global startTime, endTime
+    startTime = time.time()
     # Main game loop
     while True:
-        startTime = time.time()
         print_board()
         create_output_file_board_state()
         # take user input
