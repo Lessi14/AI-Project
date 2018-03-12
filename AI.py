@@ -2,11 +2,13 @@ import argparse
 import sys
 import time
 import math
+import copy
 
 board = [[], [], []]
 LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
 
 from enum import Enum
+from queue import PriorityQueue
 
 
 class Moves(Enum):
@@ -17,6 +19,14 @@ class Moves(Enum):
 
     def __str__(self):
         return '%s' % self._value_
+
+class Node():
+    def __init__(self, g_n, h_n, boardNode, listOfMoves)
+       self.g_n = g_n
+       self.h_n = h_n
+       self.f_n = self.g_n + self.h_n
+       self.boardNode = copy.deepcopy(boardNode)
+       self.listOfMoves = copy.deepcopy(listOfMoves)
 
 
 # Global variables
@@ -50,6 +60,8 @@ def gameLoop():
         # verify move
         if verifyMove(move):
             print("You moved by " + str(x) + " and " + str(y))
+            makeMove(move)
+            numberOfMoves += 1
 
         if checkWinningCondition(board):
             endTime = time.time()
@@ -106,19 +118,31 @@ def verifyMove(move):
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
         print("Illegal move! You cannot move " + str(move) + ".")
         return False
-
-    previousX = x
-    previousY = y
-    x = tempx
-    y = tempy
-
-    board[previousY][previousX] = board[y][x]
-    board[y][x] = "e"
-
-    numberOfMoves += 1
-
+        
     return True
 
+def makeMove(move, boardToMove, currentX, currentY)
+    tempy = currentY
+    tempx = currentX
+
+    if move == Moves.Up:
+        tempy = tempy - 1
+    elif move == Moves.Down:
+        tempy = tempy + 1
+    elif move == Moves.Left:
+        tempx = tempx - 1
+    else:
+        tempx = tempx + 1
+
+    previousX = currentX
+    previousY = currentY
+    currentX = tempx
+    currentY = tempy
+
+    boardToMove[previousY][previousX] = boardToMove[currentY][currentX]
+    boardToMove[currentY][currentX] = "e"
+   
+    return board;
 
 # Checks if the grid reaches the winning condition (the goal state)
 def checkWinningCondition(board):
@@ -185,6 +209,31 @@ def solve_board():
     global board
     print("Start solving the board here")
 
+def a_star_search_algorithm():
+    global board, numberOfMoves
+    start = Node(0, calculate_h_n(board), numberOfMoves)
+    open_list = queue.PriorityQueue
+    open_list.put(start.f_n, start)
+    closed_list = []
+    while (not open_list.empty()):
+        current = open_list.get()
+        
+
+def calculate_h_n():
+    counter = 0
+    for column in board[0]:
+       if column is not board[2][board[0].index(column)]:
+            counter += 1
+    return counter
+
+##NOT DONE BUT YOU NEED TO ADD ALL CHILDREN THAT ACTUALLY CAN MAKE THE MOVE
+def get_children(parent):
+    children_list = []
+    if verifyMove("up")
+        makeMove("up", parent.boardNode, x,y)
+        
+        children_list.append()
+    
 
 def solve_file_problems(filename):
     with open(filename) as file:
