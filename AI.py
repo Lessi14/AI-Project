@@ -130,12 +130,14 @@ def checkWinningCondition(board):
 
 
 def print_board():
-    global board
+    global board,x,y
     print("---------------")
     for row in board:
         line = ""
         for column in row:
             if column is "e":
+                x = row.index(column)
+                y = board.index(row)
                 line = line + "| |"
             else:
                 line = line + "|" + column + "|"
