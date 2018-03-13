@@ -5,7 +5,6 @@ import math
 import copy
 
 board = [[], [], []]
-LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
 
 from enum import Enum
 from queue import PriorityQueue
@@ -119,7 +118,7 @@ def verifyMove(move, boardSetUp):
         tempx = tempx + 1
 
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
-        print("Illegal move! You cannot move " + str(move) + ".")
+        #print("Illegal move! You cannot move " + str(move) + ".")
         return False
         
     return True
@@ -141,6 +140,8 @@ def makeMove(move, boardSetUp):
     previousY = boardSetUp.y
     currentX = tempx
     currentY = tempy
+    boardSetUp.x = currentX
+    boardSetUp.y = currentY
 
     boardSetUp.board[previousY][previousX] = boardSetUp.board[currentY][currentX]
     boardSetUp.board[currentY][currentX] = "e"
@@ -211,42 +212,52 @@ def solve_board(boardSetUp):
     a_star_search_algorithm(boardSetUp)
 
 def a_star_search_algorithm(boardSetUp):
-    start = Node(0, calculate_h_n(boardSetUp.board), numberOfMoves, boardSetUp)
+    start = Node(0, calculate_h_n(boardSetUp.board), "", boardSetUp)
     open_list = PriorityQueue()
     count = 0
     open_list.put((start.f_n, count, start))
     count += 1
     closed_list = set()
-    while (not open_list.empty()):
+    while not open_list.empty():
         current = open_list.get()[2]
         closed_list.add(get_string_representation(current.boardSetUp.board))
         children_boards = get_children_boards(current)
         for child_board in children_boards:
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
+                #print("Already in list")
                 continue
             heuristic = calculate_h_n(child_board.board)
-            new_node = Node(current.f_n, heuristic, current.listOfMoves, child_board)
+            #print(str(heuristic));
+            move = get_e_letter(child_board)
+            new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
-                print("0 heuristic")
+                #print("0 heuristic")
                 print_final_board(new_node)
-                break
+                return
             else:
-                print(new_node.f_n)
+                #print(new_node.f_n)
+                #print("Adding to queue")
+                #print_board(new_node.boardSetUp)
                 open_list.put((new_node.f_n, count, new_node))
                 count += 1
     print("Done looking through list")
 
+def get_e_letter(boardSetUp):
+    letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
+    index = boardSetUp.x + boardSetUp.y*5
+    return letters[index]
+
 def print_final_board(node):
     print("Solved board!\n")
-    print_board(node.boardSetUp.board)
+    print_board(node.boardSetUp)
     print(node.listOfMoves+"\n")
 
 def calculate_h_n(board):
     counter = 0
     for column in board[0]:
        if column is not board[2][board[0].index(column)]:
-            print(column + " " + board[2][board[0].index(column)])
+            #print(str(counter) + " " + column + " " + board[2][board[0].index(column)])
             counter += 1
     return counter
 
@@ -278,14 +289,14 @@ def get_children_boards(parent):
 
 def get_valid_moves(boardSetUp):
     valid_moves = []
-    if verifyMove("up", boardSetUp):
-        valid_moves.append("up")
-    if verifyMove("down", boardSetUp):
-        valid_moves.append("down")
-    if verifyMove("right", boardSetUp):
-        valid_moves.append("right")
-    if verifyMove("left", boardSetUp):
-        valid_moves.append("left")
+    if verifyMove(Moves.Up, boardSetUp):
+        valid_moves.append(Moves.Up)
+    if verifyMove(Moves.Down, boardSetUp):
+        valid_moves.append(Moves.Down)
+    if verifyMove(Moves.Right, boardSetUp):
+        valid_moves.append(Moves.Right)
+    if verifyMove(Moves.Left, boardSetUp):
+        valid_moves.append(Moves.Left)
     return valid_moves
 
 def solve_file_problems(filename):
