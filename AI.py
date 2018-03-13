@@ -211,7 +211,12 @@ def solve_board(boardSetUp):
     finalFileOutput += "Board took " + str(boardTime) + " milliseconds to solve\n"
 
 def a_star_search_algorithm(boardSetUp):
-    start = Node(0, calculate_h_n(boardSetUp.board), "", boardSetUp)
+    global puzzleConfigFileOutput
+    heuristic = calculate_h_n(boardSetUp.board)
+    start = Node(0, heuristic, "", boardSetUp)
+    if heuristic == 0:
+        print_final_board(start)
+        return
     open_list = PriorityQueue()
     count = 0
     open_list.put((start.f_n, count, start))
@@ -234,7 +239,7 @@ def a_star_search_algorithm(boardSetUp):
             else:
                 open_list.put((new_node.f_n, count, new_node))
                 count += 1
-    print("NO SOLUTION TO BOARD")
+    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
 def get_e_letter(boardSetUp):
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
