@@ -258,8 +258,8 @@ def print_final_board(node):
 
 def calculate_h_n(board):
     counter = 0
-    for column in board[0]:
-       if column is not board[2][board[0].index(column)]:
+    for i in range(0, len(board[0])):
+       if board[0][i] is not board[2][i]:
             counter += 1
     return counter
 
