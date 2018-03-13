@@ -21,21 +21,24 @@ class Moves(Enum):
         return '%s' % self._value_
 
 class Node():
-    def __init__(self, g_n, h_n, boardNode, listOfMoves)
+    def __init__(self, g_n, h_n, listOfMoves, boardSetUp):
        self.g_n = g_n
        self.h_n = h_n
        self.f_n = self.g_n + self.h_n
-       self.boardNode = copy.deepcopy(boardNode)
        self.listOfMoves = copy.deepcopy(listOfMoves)
+       self.boardSetUp = boardSetUp
 
+class BoardSetUp():
+    def __init__(self, x, y, board):
+        self.x = x
+        self.y = y
+        self.board = board
 
 # Global variables
 MIN_ROW = 0
 MAX_ROW = 2
 MIN_COLUMN = 0
 MAX_COLUMN = 4
-x = 0
-y = 0
 numberOfMoves = 0
 startTime = 0
 endTime = 0
@@ -101,10 +104,10 @@ def inputToEnum(inputCheck):
 
 
 # Verifies if the move is along the grid
-def verifyMove(move):
-    global MAX_ROW, MIN_ROW, MAX_COLUMN, MIN_COLUMN, x, y, board, numberOfMoves
-    tempy = y
-    tempx = x
+def verifyMove(move, boardSetUp):
+    global MAX_ROW, MIN_ROW, MAX_COLUMN, MIN_COLUMN
+    tempy = boardSetUp.y
+    tempx = boardSetUp.x
 
     if move == Moves.Up:
         tempy = tempy - 1
@@ -121,9 +124,9 @@ def verifyMove(move):
         
     return True
 
-def makeMove(move, boardToMove, currentX, currentY)
-    tempy = currentY
-    tempx = currentX
+def makeMove(move, boardSetUp):
+    tempy = boardSetUp.y
+    tempx = boardSetUp.x
 
     if move == Moves.Up:
         tempy = tempy - 1
@@ -134,15 +137,13 @@ def makeMove(move, boardToMove, currentX, currentY)
     else:
         tempx = tempx + 1
 
-    previousX = currentX
-    previousY = currentY
+    previousX = boardSetUp.x
+    previousY = boardSetUp.y
     currentX = tempx
     currentY = tempy
 
-    boardToMove[previousY][previousX] = boardToMove[currentY][currentX]
-    boardToMove[currentY][currentX] = "e"
-   
-    return board;
+    boardSetUp.board[previousY][previousX] = boardSetUp.board[currentY][currentX]
+    boardSetUp.board[currentY][currentX] = "e"
 
 # Checks if the grid reaches the winning condition (the goal state)
 def checkWinningCondition(board):
@@ -153,15 +154,14 @@ def checkWinningCondition(board):
     return True
 
 
-def print_board():
-    global board,x,y
+def print_board(boardSetUp):
     print("---------------")
-    for row in board:
+    for row in boardSetUp.board:
         line = ""
         for column in row:
             if column is "e":
-                x = row.index(column)
-                y = board.index(row)
+                boardSetUp.x = row.index(column)
+                boardSetUp.y = boardSetUp.board.index(row)
                 line = line + "| |"
             else:
                 line = line + "|" + column + "|"
@@ -170,7 +170,6 @@ def print_board():
 
 
 def build_board(line):
-    global board
     candies = line.split()
     if len(candies) < 15:
         print("Error parsing line " + line)
@@ -179,7 +178,9 @@ def build_board(line):
     board = [[candies[0], candies[1], candies[2], candies[3], candies[4]],
              [candies[5], candies[6], candies[7], candies[8], candies[9]],
              [candies[10], candies[11], candies[12], candies[13], candies[14]]]
-    gameLoop()
+    boardSetUp = BoardSetUp(0, 0, board)
+    return boardSetUp
+    #gameLoop()
 
 
 def create_output_file_board_state():
@@ -205,44 +206,95 @@ def create_end_game_file(gamenumber, timespent, totalmoves):
     file.write("\nTotal moves: " + str(totalmoves))
 
 
-def solve_board():
-    global board
+def solve_board(boardSetUp):
     print("Start solving the board here")
+    a_star_search_algorithm(boardSetUp)
 
-def a_star_search_algorithm():
-    global board, numberOfMoves
-    start = Node(0, calculate_h_n(board), numberOfMoves)
-    open_list = queue.PriorityQueue
-    open_list.put(start.f_n, start)
-    closed_list = []
+def a_star_search_algorithm(boardSetUp):
+    start = Node(0, calculate_h_n(boardSetUp.board), numberOfMoves, boardSetUp)
+    open_list = PriorityQueue()
+    count = 0
+    open_list.put((start.f_n, count, start))
+    count += 1
+    closed_list = set()
     while (not open_list.empty()):
-        current = open_list.get()
-        
+        current = open_list.get()[2]
+        closed_list.add(get_string_representation(current.boardSetUp.board))
+        children_boards = get_children_boards(current)
+        for child_board in children_boards:
+            board_string = get_string_representation(child_board.board)
+            if board_string in closed_list:
+                continue
+            heuristic = calculate_h_n(child_board.board)
+            new_node = Node(current.f_n, heuristic, current.listOfMoves, child_board)
+            if heuristic == 0:
+                print("0 heuristic")
+                print_final_board(new_node)
+                break
+            else:
+                print(new_node.f_n)
+                open_list.put((new_node.f_n, count, new_node))
+                count += 1
+    print("Done looking through list")
 
-def calculate_h_n():
+def print_final_board(node):
+    print("Solved board!\n")
+    print_board(node.boardSetUp.board)
+    print(node.listOfMoves+"\n")
+
+def calculate_h_n(board):
     counter = 0
     for column in board[0]:
        if column is not board[2][board[0].index(column)]:
+            print(column + " " + board[2][board[0].index(column)])
             counter += 1
     return counter
 
+def get_string_representation(board):
+    string = ""
+    for row in board:
+        for column in row:
+            string += column
+    return string
+
 ##NOT DONE BUT YOU NEED TO ADD ALL CHILDREN THAT ACTUALLY CAN MAKE THE MOVE
-def get_children(parent):
+'''1) get current
+2) add current to closed list
+3) get children
+4) for each child check that it's not already in closed list
+5) get heuristic
+6) if heuristic is 0, finish because we have a winning board
+7) else, add to open list(edited)'''
+def get_children_boards(parent):
     children_list = []
-    if verifyMove("up")
-        makeMove("up", parent.boardNode, x,y)
+    valid_moves = get_valid_moves(parent.boardSetUp)
+    for move in valid_moves:
+        board = copy.deepcopy(parent.boardSetUp.board)
+        boardSetUp = BoardSetUp(parent.boardSetUp.x, parent.boardSetUp.y, board)
         
-        children_list.append()
-    
+        makeMove(move, boardSetUp)
+        children_list.append(boardSetUp)
+    return children_list
+
+def get_valid_moves(boardSetUp):
+    valid_moves = []
+    if verifyMove("up", boardSetUp):
+        valid_moves.append("up")
+    if verifyMove("down", boardSetUp):
+        valid_moves.append("down")
+    if verifyMove("right", boardSetUp):
+        valid_moves.append("right")
+    if verifyMove("left", boardSetUp):
+        valid_moves.append("left")
+    return valid_moves
 
 def solve_file_problems(filename):
     with open(filename) as file:
         for line in file:
-            build_board(line)
+            boardSetUp = build_board(line)
             print("Initial configuration")
-            print_board()
-            solve_board()
-            print("Board solved!\n")
+            print_board(boardSetUp)
+            solve_board(boardSetUp)
 
 
 # Usage: python echoclient.py --host host --port port
