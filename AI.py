@@ -42,11 +42,12 @@ numberOfMoves = 0
 startTime = 0
 endTime = 0
 totalTime = 0
+finalFileOutput = ""
+puzzleConfigFileOutput = ""
+boardNumber = 0
 
 
 def gameLoop():
-    global startTime, endTime
-    startTime = time.time()
     # Main game loop
     while True:
         print_board()
@@ -66,8 +67,6 @@ def gameLoop():
             numberOfMoves += 1
 
         if checkWinningCondition(board):
-            endTime = time.time()
-            totalTime = math.ceil(endTime - startTime)
             print_board()
             create_output_file_board_state()
             print("You won")
@@ -156,7 +155,10 @@ def checkWinningCondition(board):
 
 
 def print_board(boardSetUp):
-    print("---------------")
+    print(get_print_board(boardSetUp))
+
+def get_print_board(boardSetUp):
+    string = "---------------\n"
     for row in boardSetUp.board:
         line = ""
         for column in row:
@@ -166,9 +168,9 @@ def print_board(boardSetUp):
                 line = line + "| |"
             else:
                 line = line + "|" + column + "|"
-        print(line)
-        print("---------------")
-
+        string += line + "\n"
+        string += "---------------\n"
+    return string
 
 def build_board(line):
     candies = line.split()
@@ -185,31 +187,28 @@ def build_board(line):
 
 
 def create_output_file_board_state():
-    file = open("output.txt", "a")
-    global board
-    file.write("\nNUMBER OF MOVES " + str(numberOfMoves) + "\n")
-    file.write("---------------")
-    for row in board:
-        line = ""
-        for column in row:
-            if column is "e":
-                line = line + "| |"
-            else:
-                line = line + "|" + column + "|"
-        file.write("\n" + line)
-        file.write("\n---------------")
+    global puzzleConfigFileOutput
+    file = open("boards.txt", "w")
+    file.write(puzzleConfigFileOutput)
 
 
-def create_end_game_file(gamenumber, timespent, totalmoves):
-    file = open("output.txt", "a")
-    file.write("\nGame: " + str(gamenumber))
-    file.write("\nTime spent: " + str(timespent) + " seconds")
-    file.write("\nTotal moves: " + str(totalmoves))
+def create_end_game_file():
+    global finalFileOutput, numberOfMoves, totalTime, boardNumber
+    file = open("output.txt", "w")
+    file.write(finalFileOutput)
+    file.write("\n-----------------------------------------------------------------------\n")
+    file.write("All " + str(boardNumber) + " boards solved\n")
+    file.write("\nTotal time spent: " + str(totalTime) + " milliseconds")
+    file.write("\nTotal moves: " + str(numberOfMoves))
 
 
 def solve_board(boardSetUp):
-    print("Start solving the board here")
+    global finalFileOutput
+    boardStartTime = time.time()
     a_star_search_algorithm(boardSetUp)
+    boardEndTime = time.time()
+    boardTime = boardEndTime - boardStartTime
+    finalFileOutput += "Board took " + str(boardTime) + " milliseconds to solve\n"
 
 def a_star_search_algorithm(boardSetUp):
     start = Node(0, calculate_h_n(boardSetUp.board), "", boardSetUp)
@@ -225,23 +224,17 @@ def a_star_search_algorithm(boardSetUp):
         for child_board in children_boards:
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
-                #print("Already in list")
                 continue
             heuristic = calculate_h_n(child_board.board)
-            #print(str(heuristic));
             move = get_e_letter(child_board)
             new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
-                #print("0 heuristic")
                 print_final_board(new_node)
                 return
             else:
-                #print(new_node.f_n)
-                #print("Adding to queue")
-                #print_board(new_node.boardSetUp)
                 open_list.put((new_node.f_n, count, new_node))
                 count += 1
-    print("Done looking through list")
+    print("NO SOLUTION TO BOARD")
 
 def get_e_letter(boardSetUp):
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
@@ -249,15 +242,19 @@ def get_e_letter(boardSetUp):
     return letters[index]
 
 def print_final_board(node):
-    print("Solved board!\n")
-    print_board(node.boardSetUp)
-    print(node.listOfMoves+"\n")
+    global finalFileOutput, numberOfMoves, puzzleConfigFileOutput, boardNumber
+    numberOfMoves += node.g_n
+    
+    finalFileOutput += "\nSolved board " + str(boardNumber) + " in " + str(node.g_n) + " moves!\n"
+    finalFileOutput += node.listOfMoves+"\n"
+    
+    puzzleConfigFileOutput += "Final configuration\n"
+    puzzleConfigFileOutput += get_print_board(node.boardSetUp) + "\n"
 
 def calculate_h_n(board):
     counter = 0
     for column in board[0]:
        if column is not board[2][board[0].index(column)]:
-            #print(str(counter) + " " + column + " " + board[2][board[0].index(column)])
             counter += 1
     return counter
 
@@ -268,14 +265,6 @@ def get_string_representation(board):
             string += column
     return string
 
-##NOT DONE BUT YOU NEED TO ADD ALL CHILDREN THAT ACTUALLY CAN MAKE THE MOVE
-'''1) get current
-2) add current to closed list
-3) get children
-4) for each child check that it's not already in closed list
-5) get heuristic
-6) if heuristic is 0, finish because we have a winning board
-7) else, add to open list(edited)'''
 def get_children_boards(parent):
     children_list = []
     valid_moves = get_valid_moves(parent.boardSetUp)
@@ -300,12 +289,19 @@ def get_valid_moves(boardSetUp):
     return valid_moves
 
 def solve_file_problems(filename):
+    global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput
     with open(filename) as file:
+        startTime = time.time()
         for line in file:
+            boardNumber += 1
             boardSetUp = build_board(line)
-            print("Initial configuration")
-            print_board(boardSetUp)
+            puzzleConfigFileOutput += "\nPuzzle " + str(boardNumber) + " initial configuration\n"
+            puzzleConfigFileOutput += get_print_board(boardSetUp) + "\n"
             solve_board(boardSetUp)
+        endTime = time.time()
+        totalTime = endTime - startTime
+    create_output_file_board_state()
+    create_end_game_file()
 
 
 # Usage: python echoclient.py --host host --port port
