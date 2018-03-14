@@ -48,47 +48,65 @@ boardNumber = 0
 
 
 def gameLoop(boardSetup):
-    global  numberOfMoves
+    global numberOfMoves
+    counter = 0
     while True:
-        print_board(boardSetup)
+        print_board(boardSetup[counter])
         create_output_file_board_state()
         # take user input
         userInput = input("What direction should the empty space move.\n")
-        while not inputCheck(userInput):
-            userInput = input("Please insert a valid input\n")
+        while not inputcheck(userInput):
+            userInput = input("Please insert a valid input.\n")
 
         # get Enum version of user input
         move = inputToEnum(userInput)
 
         # verify move
-        if verifyMove(move, boardSetup):
-            print("You moved by " + str(boardSetup.x) + " and " + str(boardSetup.y))
-            makeMove(move, boardSetup)
+        if verifyMove(move, boardSetup[counter]):
+            print("You moved by " + str(boardSetup[counter].x) + " and " + str(boardSetup[counter].y))
+            makeMove(move, boardSetup[counter])
             numberOfMoves += 1
 
-        if checkWinningCondition(boardSetup.board):
-            print_board(boardSetup)
+        if checkWinningCondition(boardSetup[counter].board):
+            print_board(boardSetup[counter])
             create_output_file_board_state()
             print("You won")
             print("Total number of moves was " + str(numberOfMoves))
             print("Total time spent is " + str(totalTime) + " seconds")
             #create_end_game_file(1, totalTime, numberOfMoves)
             create_end_game_file()
-            # Exitprogram
-            sys.exit()
 
-# Checks if the user input is valid
-def autoCheck(userInputCheck):
-    if type(userInputCheck) != str:
+            endgame = input("Do you want to keep playing? \n")
+            while not endgamecheck(endgame):
+                endgame = input("Please insert a valid input.\n")
+
+            if endgame == 'no' or endgame == 'n':
+                sys.exit()
+
+            counter += 1
+
+
+def endgamecheck(endgameinput):
+    if type(endgameinput) != str:
         return False
-    if (userInputCheck != 'automatic' and userInputCheck != 'auto'
-        and userInputCheck != 'manual' and userInputCheck != 'man'):
-        print(userInputCheck + " is not valid blin.")
+    if (endgameinput != 'yes' and endgameinput != 'y'
+        and endgameinput != 'no' and endgameinput != 'n'):
+        print(endgameinput + " is not valid blin.")
+        return False
+    return True
+
+
+def autocheck(autoinput):
+    if type(autoinput) != str:
+        return False
+    if (autoinput != 'automatic' and autoinput != 'auto'
+        and autoinput != 'manual' and autoinput != 'man'):
+        print(autoinput + " is not valid blin.")
         return False
     return True
 
 # Checks if the user input is valid
-def inputCheck(userInputCheck):
+def inputcheck(userInputCheck):
     if type(userInputCheck) != str:
         return False
     if (userInputCheck != 'right' and userInputCheck != 'left'
@@ -165,6 +183,7 @@ def checkWinningCondition(board):
 def print_board(boardSetUp):
     print(get_print_board(boardSetUp))
 
+
 def get_print_board(boardSetUp):
     string = "---------------\n"
     for row in boardSetUp.board:
@@ -180,6 +199,7 @@ def get_print_board(boardSetUp):
         string += "---------------\n"
     return string
 
+
 def build_board(line):
     candies = line.split()
     if len(candies) < 15:
@@ -191,7 +211,6 @@ def build_board(line):
              [candies[10], candies[11], candies[12], candies[13], candies[14]]]
     boardSetUp = BoardSetUp(0, 0, board)
     return boardSetUp
-    #gameLoop()
 
 
 def create_output_file_board_state():
@@ -217,6 +236,7 @@ def solve_board(boardSetUp):
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += "Board took " + str(boardTime) + " milliseconds to solve\n"
+
 
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
@@ -249,10 +269,12 @@ def a_star_search_algorithm(boardSetUp):
                 count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
+
 def get_e_letter(boardSetUp):
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
     index = boardSetUp.x + boardSetUp.y*5
     return letters[index]
+
 
 def print_final_board(node):
     global finalFileOutput, numberOfMoves, puzzleConfigFileOutput, boardNumber
@@ -321,13 +343,15 @@ def solve_file_problems(filename):
 
 
 def getBoardSetup(filename):
+    boardsetup = []
     with open(filename) as file:
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
                 print("This board does not have a empty blank. Board: " + line)
                 continue
-            boardSetUp = build_board(line)
-    return boardSetUp
+            boardsetup.append(build_board(line))
+
+    return boardsetup
 
 
 # Usage: python echoclient.py --host host --port port
@@ -340,8 +364,8 @@ args = parser.parse_args()
 #main loop
 while True:
     autoInput = input("Automatic or manual? (Please type manual, man, automatic, auto.)\n")
-    while not autoCheck(autoInput):
-        autoInput = input("Please insert a valid input\n")
+    while not autocheck(autoInput):
+        autoInput = input("Please insert a valid input.\n")
 
     if autoInput == 'man' or autoInput == 'manual':
         gameLoop(getBoardSetup(args.file))
