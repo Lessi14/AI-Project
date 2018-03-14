@@ -47,27 +47,26 @@ puzzleConfigFileOutput = ""
 boardNumber = 0
 
 
-def gameLoop():
-    # Main game loop
+def gameLoop(boardSetup):
     while True:
-        print_board()
+        print_board(boardSetup)
         create_output_file_board_state()
         # take user input
-        userInput = input("What direction should the empty space move.")
+        userInput = input("What direction should the empty space move.\n")
         while not inputCheck(userInput):
-            userInput = input("Please insert a valid input")
+            userInput = input("Please insert a valid input\n")
 
         # get Enum version of user input
         move = inputToEnum(userInput)
 
         # verify move
-        if verifyMove(move):
+        if verifyMove(move, boardSetup):
             print("You moved by " + str(x) + " and " + str(y))
             makeMove(move)
             numberOfMoves += 1
 
         if checkWinningCondition(board):
-            print_board()
+            print_board(boardSetup)
             create_output_file_board_state()
             print("You won")
             print("Total number of moves was " + str(numberOfMoves))
@@ -76,6 +75,16 @@ def gameLoop():
             # Exitprogram
             sys.exit()
 
+# Checks if the user input is valid
+def autoCheck(userInputCheck):
+    if type(userInputCheck) != str:
+        return False
+    if (userInputCheck != 'automatic' and userInputCheck != 'auto'
+        and userInputCheck != 'manual' and userInputCheck != 'man'):
+        print(userInputCheck)
+        print("not valid")
+        return False
+    return True
 
 # Checks if the user input is valid
 def inputCheck(userInputCheck):
@@ -309,10 +318,27 @@ def solve_file_problems(filename):
     create_end_game_file()
 
 
+def getBoardSetup(filename):
+    with open(filename) as file:
+        for line in file:
+            boardSetUp = build_board(line)
+    return boardSetUp
+
+
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
 parser.add_argument("--int", help="example int arg", type=int, default=1)
 args = parser.parse_args()
 
-solve_file_problems(args.file)
+
+#main loop
+while True:
+    autoInput = input("Automatic or manual? (Please type manual,man, automatic, auto.)\n")
+    while not autoCheck(autoInput):
+        autoInput = input("Please insert a valid input\n")
+
+    if autoInput == 'man' or autoInput == 'manual':
+        gameLoop(getBoardSetup(args.file))
+
+    solve_file_problems(args.file)
