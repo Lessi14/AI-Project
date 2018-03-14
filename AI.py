@@ -62,6 +62,7 @@ def gameLoop(boardSetup):
 
         # verify move
         if verifyMove(move, boardSetup):
+            print("You moved by " + str(boardSetup.x) + " and " + str(boardSetup.y))
             makeMove(move, boardSetup)
             numberOfMoves += 1
 
@@ -127,8 +128,6 @@ def verifyMove(move, boardSetUp):
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
         #print("Illegal move! You cannot move " + str(move) + ".")
         return False
-
-    print("You moved by " + str(tempx) + " and " + str(tempy))
     return True
 
 def makeMove(move, boardSetUp):
@@ -308,7 +307,7 @@ def solve_file_problems(filename):
         startTime = time.time()
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
-                print("This board does not have a empty blank. Board:" + line)
+                print("This board does not have a empty blank. Board: " + line)
                 continue
             boardNumber += 1
             boardSetUp = build_board(line)
@@ -325,7 +324,7 @@ def getBoardSetup(filename):
     with open(filename) as file:
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
-                print("This board does not have a empty blank. Board:" + line)
+                print("This board does not have a empty blank. Board: " + line)
                 continue
             boardSetUp = build_board(line)
     return boardSetUp
