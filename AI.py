@@ -51,6 +51,9 @@ def gameLoop(boardSetup):
     global numberOfMoves
     counter = 0
     while True:
+        if counter >= len(boardSetup):
+            print("We are the end of the file.")
+            sys.exit()
         print_board(boardSetup[counter])
         create_output_file_board_state()
         # take user input
@@ -72,7 +75,7 @@ def gameLoop(boardSetup):
             create_output_file_board_state()
             print("You won")
             print("Total number of moves was " + str(numberOfMoves))
-            print("Total time spent is " + str(totalTime) + " seconds")
+            print("Total time spent is " + str(totalTime*1000) + " seconds")
             #create_end_game_file(1, totalTime, numberOfMoves)
             create_end_game_file()
 
@@ -91,7 +94,7 @@ def endgamecheck(endgameinput):
         return False
     if (endgameinput != 'yes' and endgameinput != 'y'
         and endgameinput != 'no' and endgameinput != 'n'):
-        print(endgameinput + " is not valid blin.")
+        print(endgameinput + " is not valid.")
         return False
     return True
 
@@ -100,8 +103,9 @@ def autocheck(autoinput):
     if type(autoinput) != str:
         return False
     if (autoinput != 'automatic' and autoinput != 'auto'
-        and autoinput != 'manual' and autoinput != 'man'):
-        print(autoinput + " is not valid blin.")
+        and autoinput != 'manual' and autoinput != 'man'
+            and autoinput != 'exit'):
+        print(autoinput + " is not valid.")
         return False
     return True
 
@@ -111,7 +115,7 @@ def inputcheck(userInputCheck):
         return False
     if (userInputCheck != 'right' and userInputCheck != 'left'
         and userInputCheck != 'up' and userInputCheck != 'down'):
-        print(userInputCheck + " is not valid blin.")
+        print(userInputCheck + " is not valid.")
         return False
     return True
 
@@ -225,7 +229,7 @@ def create_end_game_file():
     file.write(finalFileOutput)
     file.write("\n-----------------------------------------------------------------------\n")
     file.write("All " + str(boardNumber) + " boards solved\n")
-    file.write("\nTotal time spent: " + str(totalTime) + " milliseconds")
+    file.write("\nTotal time spent: " + str(totalTime*1000) + " milliseconds")
     file.write("\nTotal moves: " + str(numberOfMoves))
 
 
@@ -235,7 +239,7 @@ def solve_board(boardSetUp):
     a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
-    finalFileOutput += "Board took " + str(boardTime) + " milliseconds to solve\n"
+    finalFileOutput += "Board took " + str(boardTime*1000) + " milliseconds to solve\n"
 
 
 def a_star_search_algorithm(boardSetUp):
@@ -329,7 +333,7 @@ def solve_file_problems(filename):
         startTime = time.time()
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
-                print("This board does not have a empty blank. Board: " + line)
+                print("This board is not valid. Board: " + line)
                 continue
             boardNumber += 1
             boardSetUp = build_board(line)
@@ -340,6 +344,7 @@ def solve_file_problems(filename):
         totalTime = endTime - startTime
     create_output_file_board_state()
     create_end_game_file()
+    print("The boards have been solved. Please check the the output files.\n")
 
 
 def getBoardSetup(filename):
@@ -347,7 +352,7 @@ def getBoardSetup(filename):
     with open(filename) as file:
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
-                print("This board does not have a empty blank. Board: " + line)
+                print("This board is not valid. Board: " + line)
                 continue
             boardsetup.append(build_board(line))
 
@@ -363,11 +368,14 @@ args = parser.parse_args()
 
 #main loop
 while True:
-    autoInput = input("Automatic or manual? (Please type manual, man, automatic, auto.)\n")
+    autoInput = input("Automatic or manual? (Please type manual, man, automatic, auto or exit.)\n")
     while not autocheck(autoInput):
         autoInput = input("Please insert a valid input.\n")
 
     if autoInput == 'man' or autoInput == 'manual':
         gameLoop(getBoardSetup(args.file))
-
-    solve_file_problems(args.file)
+    elif autoInput == 'auto' or autoInput == 'automatic':
+        solve_file_problems(args.file)
+    else:
+        print('Exiting')
+        sys.exit()
