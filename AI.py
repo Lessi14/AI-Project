@@ -48,14 +48,14 @@ boardNumber = 0
 
 
 def gameLoop(boardSetup):
-    global numberOfMoves
     counter = 0
+    numberOfManualMoves = 0
+    startTime = time.time()
     while True:
         if counter >= len(boardSetup):
             print("We are the end of the file.")
             sys.exit()
         print_board(boardSetup[counter])
-        create_output_file_board_state()
         # take user input
         userInput = input("What direction should the empty space move.\n")
         while not inputcheck(userInput):
@@ -68,21 +68,23 @@ def gameLoop(boardSetup):
         if verifyMove(move, boardSetup[counter]):
             print("You moved by " + str(boardSetup[counter].x) + " and " + str(boardSetup[counter].y))
             makeMove(move, boardSetup[counter])
-            numberOfMoves += 1
+            numberOfManualMoves += 1
+        else:
+            print("Illegal move! You cannot move " + str(move) + ".")
 
         if checkWinningCondition(boardSetup[counter].board):
+            endTime = time.time()
+            totalTime = endTime - startTime
             print_board(boardSetup[counter])
             create_output_file_board_state()
             print("You won")
-            print("Total number of moves was " + str(numberOfMoves))
-            print("Total time spent is " + str(totalTime*1000) + " seconds")
-            #create_end_game_file(1, totalTime, numberOfMoves)
-            create_end_game_file()
+            print("Total number of moves was " + str(numberOfManualMoves))
+            print("Total time spent is " + str(totalTime*1000) + " milliseconds")
 
-            endgame = input("Do you want to keep playing? \n")
+            endgame = input("Do you want to keep playing? (Please type yes, y, no or n.)\n")
             while not endgamecheck(endgame):
                 endgame = input("Please insert a valid input.\n")
-
+            numberOfManualMoves = 0
             if endgame == 'no' or endgame == 'n':
                 sys.exit()
 
@@ -148,7 +150,6 @@ def verifyMove(move, boardSetUp):
         tempx = tempx + 1
 
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
-        print("Illegal move! You cannot move " + str(move) + ".")
         return False
     return True
 
@@ -266,6 +267,7 @@ def a_star_search_algorithm(boardSetUp):
             move = get_e_letter(child_board)
             new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
+                numberOfMoves = 0
                 print_final_board(new_node)
                 return
             else:
