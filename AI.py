@@ -48,6 +48,7 @@ boardNumber = 0
 
 
 def gameLoop(boardSetup):
+    global numberOfManualMoves,totalTime,numberOfMoves
     counter = 0
     numberOfManualMoves = 0
     startTime = time.time()
@@ -89,6 +90,8 @@ def gameLoop(boardSetup):
                 sys.exit()
 
             counter += 1
+            numberOfMoves = 0
+            startTime = time.time()
 
 
 def endgamecheck(endgameinput):
@@ -220,13 +223,13 @@ def build_board(line):
 
 def create_output_file_board_state():
     global puzzleConfigFileOutput
-    file = open("boards.txt", "w")
+    file = open("boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
 
 def create_end_game_file():
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
-    file = open("output.txt", "w")
+    file = open("output.txt", "w+")
     file.write(finalFileOutput)
     file.write("\n-----------------------------------------------------------------------\n")
     file.write("All " + str(boardNumber) + " boards solved\n")
@@ -330,7 +333,8 @@ def get_valid_moves(boardSetUp):
     return valid_moves
 
 def solve_file_problems(filename):
-    global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput
+    global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput, finalFileOutput, puzzleConfigFileOutput
+    global numberOfMoves
     with open(filename) as file:
         startTime = time.time()
         for line in file:
@@ -347,6 +351,11 @@ def solve_file_problems(filename):
     create_output_file_board_state()
     create_end_game_file()
     print("The boards have been solved. Please check the the output files.\n")
+    finalFileOutput = ""
+    puzzleConfigFileOutput = ""
+    boardNumber = 0
+    numberOfMoves = 0
+    totalTime = 0
 
 
 def getBoardSetup(filename):
