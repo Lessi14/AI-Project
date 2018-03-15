@@ -148,7 +148,7 @@ def verifyMove(move, boardSetUp):
         tempx = tempx + 1
 
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
-        #print("Illegal move! You cannot move " + str(move) + ".")
+        print("Illegal move! You cannot move " + str(move) + ".")
         return False
     return True
 
