@@ -248,7 +248,7 @@ def solve_board(boardSetUp):
 
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    heuristic = calculate_h_n(boardSetUp.board)
+    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
         print_final_board(start)
@@ -257,7 +257,6 @@ def a_star_search_algorithm(boardSetUp):
     count = 0
     open_list.put((start.f_n, count, start))
     count += 1
-    #closed_list = set()
     closed_list = {}
     while not open_list.empty():
         current = open_list.get()[2]
@@ -267,7 +266,7 @@ def a_star_search_algorithm(boardSetUp):
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
                 continue
-            heuristic = calculate_h_n(child_board.board)
+            heuristic = calculate_h_n_permutation_inversions(child_board.board)
             move = get_e_letter(child_board)
             new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
@@ -295,6 +294,66 @@ def print_final_board(node):
     
     puzzleConfigFileOutput += "Final configuration\n"
     puzzleConfigFileOutput += get_print_board(node.boardSetUp) + "\n"
+
+def calculate_h_n_permutation_inversions(board):
+    goal_state = predict_final_board(board)
+    goal_reduced = []
+    board_reduced = []
+    #Add the important 2 rows to a single 1D array
+    for i in range(0, 5):
+        goal_reduced.append(goal_state[0][i])
+        board_reduced.append(board[0][i])
+    for i in range(0, 5):
+        goal_reduced.append(goal_state[2][i])
+        board_reduced.append(board[2][i])
+    
+    for i in range(len(goal_reduced)):
+        goal_reduced[i] = goal_reduced[i] + str(i)
+        board_reduced[i] = board_reduced[i] + str(i)
+    
+    estimation = 0
+    if board_reduced[0] != goal_reduced[0]:
+        estimation += 1
+    for i in range(0, len(goal_reduced)):
+        for j in range(i+1, len(goal_reduced)):
+            position = get_position(board_reduced[j], goal_reduced)
+            #Did not find it in the goal state
+            if position < i:
+                estimation += 1
+            
+    return estimation
+
+def get_position(element, array):
+    for i in range(len(array)):
+        if array[i] == element:
+            return i
+    return -1
+
+def predict_final_board(board):
+    pieces = {}
+    #Count how many of each piece we have on the board
+    for row in board:
+        for letter in row:
+            if letter not in pieces:
+                pieces[letter] = 0
+            pieces[letter] += 1
+    winningBoard = copy.deepcopy(board)
+    for i in range(0, 5):
+        #If this piece in row 1 can be copied to row 3, do that
+        if pieces[winningBoard[0][i]] >= 2:
+            winningBoard[2][i] = winningBoard[0][i]
+            pieces[winningBoard[0][i]] -= 2
+        #Else if piece in row 3 can be copied to row 1, do that
+        elif pieces[winningBoard[2][i]] >= 2:
+            winningBoard[0][i] = winningBoard[2][i]
+            pieces[winningBoard[2][i]] -= 2
+            #Otherwise, pick a random piece that has 2 or more of it on the board and place it on both rows
+            for piece in pieces:
+                if pieces[piece] >= 2:
+                    winningBoard[0][i] = piece
+                    winningBoard[2][i] = piece
+                    pieces[piece] -= 2
+    return winningBoard
 
 def calculate_h_n(board):
     counter = 0
