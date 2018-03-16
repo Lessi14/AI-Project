@@ -3,6 +3,7 @@ import sys
 import time
 import math
 import copy
+import random
 
 board = [[], [], []]
 
@@ -99,9 +100,8 @@ def endgamecheck(endgameinput):
 def autocheck(autoinput):
     if type(autoinput) != str:
         return False
-    if (autoinput != 'automatic' and autoinput != 'auto'
-        and autoinput != 'manual' and autoinput != 'man'):
-        print(autoinput + " is not valid blin.")
+    if (autoinput != '1' and autoinput != '2' and autoinput != '3'):
+        print(autoinput + " is not valid input.")
         return False
     return True
 
@@ -111,7 +111,7 @@ def inputcheck(userInputCheck):
         return False
     if (userInputCheck != 'right' and userInputCheck != 'left'
         and userInputCheck != 'up' and userInputCheck != 'down'):
-        print(userInputCheck + " is not valid blin.")
+        print(userInputCheck + " is not valid input.")
         return False
     return True
 
@@ -225,7 +225,7 @@ def create_end_game_file():
     file.write(finalFileOutput)
     file.write("\n-----------------------------------------------------------------------\n")
     file.write("All " + str(boardNumber) + " boards solved\n")
-    file.write("\nTotal time spent: " + str(totalTime) + " milliseconds")
+    file.write("\nTotal time spent: " + str(totalTime) + " seconds")
     file.write("\nTotal moves: " + str(numberOfMoves))
 
 
@@ -235,7 +235,7 @@ def solve_board(boardSetUp):
     a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
-    finalFileOutput += "Board took " + str(boardTime) + " milliseconds to solve\n"
+    finalFileOutput += "Board took " + str(boardTime) + " seconds to solve\n"
 
 
 def a_star_search_algorithm(boardSetUp):
@@ -290,8 +290,35 @@ def calculate_h_n(board):
     counter = 0
     for i in range(0, len(board[0])):
        if board[0][i] is not board[2][i]:
-            counter += 1
+            value = min(manhattan_distance(board, board[2][i], 0, i), manhattan_distance(board, board[0][i], 2, i))
+            counter += value
+            #counter += 1
     return counter
+
+def manhattan_distance(board, letter, row, column):
+    if letter == 'e':
+        return 1000000
+    if row != 2 and board[row+1][column] == letter:
+        return 1
+    if row != 0 and board[row-1][column] == letter:
+        return 1
+    if column != 0 and board[row][column-1] == letter:
+        return 1
+    if column != 4 and board[row][column+1] == letter:
+        return 1
+    if column != 4 and row != 2 and board[row+1][column+1] == letter:
+        return 2
+    if column != 0 and row != 0 and board[row-1][column-1] == letter:
+        return 2
+    if column != 0 and row != 2 and board[row+1][column-1] == letter:
+        return 2
+    if column != 4 and row != 0 and board[row-1][column+1] == letter:
+        return 2
+    if column < 3 and board[row][column+2] == letter:
+        return 2
+    if column > 1 and board[row][column-2] == letter:
+        return 2
+    return 3
 
 def get_string_representation(board):
     string = ""
@@ -353,21 +380,67 @@ def getBoardSetup(filename):
 
     return boardsetup
 
+def generatePuzzleFiles(filename):
+    difficulty = input("Choose a difficulty\n1) Novice\n2) Apprentice\n3) Expert\n4) Master\n")
+    while not (difficulty == '1' or difficulty == '2' or difficulty == '3' or difficulty == '4'):
+        difficulty = input("Please insert a valid input.\n")
+    if difficulty == '1':
+        generateNoviceFile(filename)
+    elif difficulty == '2':
+        generateApprenticeFile(filename)
+    elif difficulty == '3':
+        generateExpertFile(filename)
+    elif difficulty == '4':
+        generateMasterFile(filename)
+    sys.exit()
+
+def generateNoviceFile(filename):
+    array = ['e', 'r', 'r', 'r', 'r', 'r', 'r', 'b', 'b', 'b', 'b', 'b', 'b', 'w', 'w']
+    generateDifficultyFile(filename, array, 50)
+
+def generateApprenticeFile(filename):
+    array = ['e', 'r', 'r', 'r', 'r', 'r', 'r', 'b', 'b', 'b', 'b', 'y', 'y', 'w', 'w']
+    generateDifficultyFile(filename, array, 50)
+
+def generateExpertFile(filename):
+    array = ['e', 'r', 'r', 'r', 'r', 'g', 'g', 'b', 'b', 'b', 'b', 'y', 'y', 'w', 'w']
+    generateDifficultyFile(filename, array, 30)
+
+def generateMasterFile(filename):
+    array = ['e', 'r', 'r', 'r', 'r', 'g', 'g', 'b', 'b', 'p', 'p', 'y', 'y', 'w', 'w']
+    generateDifficultyFile(filename, array, 10)
+
+def generateDifficultyFile(filename, array, numberOfPuzzles):
+    text = ""
+    for i in range(0, numberOfPuzzles):
+        shuffledArray = copy.deepcopy(array)
+        random.shuffle(shuffledArray)
+        for letter in shuffledArray:
+            text += letter + " "
+        text = text.rstrip()
+        text += '\n'
+    text = text.rstrip('\n')
+    generatePuzzleFile(filename, text)
+
+def generatePuzzleFile(filename, text):
+    file = open(filename, "w")
+    file.write(text)
 
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
-parser.add_argument("--int", help="example int arg", type=int, default=1)
 args = parser.parse_args()
 
 
 #main loop
 while True:
-    autoInput = input("Automatic or manual? (Please type manual, man, automatic, auto.)\n")
+    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n")
     while not autocheck(autoInput):
         autoInput = input("Please insert a valid input.\n")
 
-    if autoInput == 'man' or autoInput == 'manual':
+    if autoInput == '2':
         gameLoop(getBoardSetup(args.file))
-
-    solve_file_problems(args.file)
+    elif autoInput == '1':
+        solve_file_problems(args.file)
+    elif autoInput == '3':
+        generatePuzzleFiles(args.file)
