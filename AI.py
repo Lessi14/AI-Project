@@ -49,11 +49,15 @@ boardNumber = 0
 
 
 def gameLoop(boardSetup):
-    global numberOfMoves
+    global numberOfManualMoves,totalTime,numberOfMoves
     counter = 0
+    numberOfManualMoves = 0
+    startTime = time.time()
     while True:
+        if counter >= len(boardSetup):
+            print("We are the end of the file.")
+            sys.exit()
         print_board(boardSetup[counter])
-        create_output_file_board_state()
         # take user input
         userInput = input("What direction should the empty space move.\n")
         while not inputcheck(userInput):
@@ -66,25 +70,29 @@ def gameLoop(boardSetup):
         if verifyMove(move, boardSetup[counter]):
             print("You moved by " + str(boardSetup[counter].x) + " and " + str(boardSetup[counter].y))
             makeMove(move, boardSetup[counter])
-            numberOfMoves += 1
+            numberOfManualMoves += 1
+        else:
+            print("Illegal move! You cannot move " + str(move) + ".")
 
         if checkWinningCondition(boardSetup[counter].board):
+            endTime = time.time()
+            totalTime = endTime - startTime
             print_board(boardSetup[counter])
             create_output_file_board_state()
             print("You won")
-            print("Total number of moves was " + str(numberOfMoves))
-            print("Total time spent is " + str(totalTime) + " seconds")
-            #create_end_game_file(1, totalTime, numberOfMoves)
-            create_end_game_file()
+            print("Total number of moves was " + str(numberOfManualMoves))
+            print("Total time spent is " + str(totalTime*1000) + " milliseconds")
 
-            endgame = input("Do you want to keep playing? \n")
+            endgame = input("Do you want to keep playing? (Please type yes, y, no or n.)\n")
             while not endgamecheck(endgame):
                 endgame = input("Please insert a valid input.\n")
-
+            numberOfManualMoves = 0
             if endgame == 'no' or endgame == 'n':
                 sys.exit()
 
             counter += 1
+            numberOfMoves = 0
+            startTime = time.time()
 
 
 def endgamecheck(endgameinput):
@@ -92,7 +100,7 @@ def endgamecheck(endgameinput):
         return False
     if (endgameinput != 'yes' and endgameinput != 'y'
         and endgameinput != 'no' and endgameinput != 'n'):
-        print(endgameinput + " is not valid blin.")
+        print(endgameinput + " is not valid.")
         return False
     return True
 
@@ -100,8 +108,9 @@ def endgamecheck(endgameinput):
 def autocheck(autoinput):
     if type(autoinput) != str:
         return False
-    if (autoinput != '1' and autoinput != '2' and autoinput != '3'):
-        print(autoinput + " is not valid input.")
+    
+    if (autoinput != '1' and autoinput != '2' and autoinput != '3' and autoinput != '4'):
+        print(autoinput + " is not valid.")
         return False
     return True
 
@@ -111,7 +120,7 @@ def inputcheck(userInputCheck):
         return False
     if (userInputCheck != 'right' and userInputCheck != 'left'
         and userInputCheck != 'up' and userInputCheck != 'down'):
-        print(userInputCheck + " is not valid input.")
+        print(userInputCheck + " is not valid.")
         return False
     return True
 
@@ -144,7 +153,6 @@ def verifyMove(move, boardSetUp):
         tempx = tempx + 1
 
     if tempy > MAX_ROW or tempy < MIN_ROW or tempx > MAX_COLUMN or tempx < MIN_COLUMN:
-        #print("Illegal move! You cannot move " + str(move) + ".")
         return False
     return True
 
@@ -215,17 +223,17 @@ def build_board(line):
 
 def create_output_file_board_state():
     global puzzleConfigFileOutput
-    file = open("boards.txt", "w")
+    file = open("boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
 
 def create_end_game_file():
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
-    file = open("output.txt", "w")
+    file = open("output.txt", "w+")
     file.write(finalFileOutput)
     file.write("\n-----------------------------------------------------------------------\n")
     file.write("All " + str(boardNumber) + " boards solved\n")
-    file.write("\nTotal time spent: " + str(totalTime) + " seconds")
+    file.write("\nTotal time spent: " + str(totalTime*1000) + " milliseconds")
     file.write("\nTotal moves: " + str(numberOfMoves))
 
 
@@ -235,7 +243,7 @@ def solve_board(boardSetUp):
     a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
-    finalFileOutput += "Board took " + str(boardTime) + " seconds to solve\n"
+    finalFileOutput += "Board took " + str(boardTime*1000) + " milliseconds to solve\n"
 
 
 def a_star_search_algorithm(boardSetUp):
@@ -262,6 +270,7 @@ def a_star_search_algorithm(boardSetUp):
             move = get_e_letter(child_board)
             new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
+                numberOfMoves = 0
                 print_final_board(new_node)
                 return
             else:
@@ -351,12 +360,13 @@ def get_valid_moves(boardSetUp):
     return valid_moves
 
 def solve_file_problems(filename):
-    global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput
+    global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput, finalFileOutput, puzzleConfigFileOutput
+    global numberOfMoves
     with open(filename) as file:
         startTime = time.time()
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
-                print("This board does not have a empty blank. Board: " + line)
+                print("This board is not valid. Board: " + line)
                 continue
             boardNumber += 1
             boardSetUp = build_board(line)
@@ -367,6 +377,12 @@ def solve_file_problems(filename):
         totalTime = endTime - startTime
     create_output_file_board_state()
     create_end_game_file()
+    print("The boards have been solved. Please check the the output files.\n")
+    finalFileOutput = ""
+    puzzleConfigFileOutput = ""
+    boardNumber = 0
+    numberOfMoves = 0
+    totalTime = 0
 
 
 def getBoardSetup(filename):
@@ -374,7 +390,7 @@ def getBoardSetup(filename):
     with open(filename) as file:
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
-                print("This board does not have a empty blank. Board: " + line)
+                print("This board is not valid. Board: " + line)
                 continue
             boardsetup.append(build_board(line))
 
@@ -434,7 +450,7 @@ args = parser.parse_args()
 
 #main loop
 while True:
-    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n")
+    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n4) Exit\n")
     while not autocheck(autoInput):
         autoInput = input("Please insert a valid input.\n")
 
@@ -444,3 +460,6 @@ while True:
         solve_file_problems(args.file)
     elif autoInput == '3':
         generatePuzzleFiles(args.file)
+    else:
+        print('Exiting')
+        sys.exit()
