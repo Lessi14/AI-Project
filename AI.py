@@ -257,10 +257,11 @@ def a_star_search_algorithm(boardSetUp):
     count = 0
     open_list.put((start.f_n, count, start))
     count += 1
-    closed_list = set()
+    #closed_list = set()
+    closed_list = {}
     while not open_list.empty():
         current = open_list.get()[2]
-        closed_list.add(get_string_representation(current.boardSetUp.board))
+        closed_list[get_string_representation(current.boardSetUp.board)] = True
         children_boards = get_children_boards(current)
         for child_board in children_boards:
             board_string = get_string_representation(child_board.board)
