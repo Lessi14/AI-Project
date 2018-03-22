@@ -231,10 +231,7 @@ def create_end_game_file():
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
     file = open("output.txt", "w+")
     file.write(finalFileOutput)
-    file.write("\n-----------------------------------------------------------------------\n")
-    file.write("All " + str(boardNumber) + " boards solved\n")
-    file.write("\nTotal time spent: " + str(totalTime*1000) + " milliseconds")
-    file.write("\nTotal moves: " + str(numberOfMoves))
+    file.write(str(numberOfMoves))
 
 
 def solve_board(boardSetUp):
@@ -243,7 +240,7 @@ def solve_board(boardSetUp):
     a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
-    finalFileOutput += "Board took " + str(boardTime*1000) + " milliseconds to solve\n"
+    finalFileOutput += str(math.ceil(boardTime*1000)) + "ms\n"
 
 
 def a_star_search_algorithm(boardSetUp):
@@ -289,7 +286,6 @@ def print_final_board(node):
     global finalFileOutput, numberOfMoves, puzzleConfigFileOutput, boardNumber
     numberOfMoves += node.g_n
     
-    finalFileOutput += "\nSolved board " + str(boardNumber) + " in " + str(node.g_n) + " moves!\n"
     finalFileOutput += node.listOfMoves+"\n"
     
     puzzleConfigFileOutput += "Final configuration\n"
