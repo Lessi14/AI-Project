@@ -375,15 +375,24 @@ def predict_final_board(board):
     
     #We make a first pass through the row to look at columns that are already mirrored
     #We don't want to change these rows
-    for i in range(0, 5):
+    '''for i in range(0, 5):
         if winningBoard[0][i] == winningBoard[2][i]:
-            pieces[winningBoard[0][1]] -= 2
+            #pieces[winningBoard[0][1]] -= 2
+            pieces[winningBoard[0][i]] -= 2'''
     
     allRowsHandled = True
     for i in range(0, 5):
         #If they are equal, we've already taken them into account in the above loop, so skip now
-        if winningBoard[0][i] == winningBoard[2][i]:
-            continue
+        #if winningBoard[0][i] == winningBoard[2][i]:
+        #    continue
+        #If either row can be copied, we need to decide which one should be copied
+        if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+                winningBoard[2][i] = winningBoard[0][i]
+                pieces[winningBoard[0][i]] -= 2
+            else:
+                winningBoard[0][i] = winningBoard[2][i]
+                pieces[winningBoard[2][i]] -= 2
         #If this piece in row 1 can be copied to row 3, do that
         elif pieces[winningBoard[0][i]] >= 2:
             winningBoard[2][i] = winningBoard[0][i]
@@ -401,6 +410,11 @@ def predict_final_board(board):
             #Skip all cases we already handled
             if winningBoard[0][i] == winningBoard[2][i]:
                 continue
+            #If the middle row can be copied, do that
+            elif pieces[winningBoard[1][i]] >= 2:
+                winningBoard[0][i] = winningBoard[1][i]
+                winningBoard[2][i] = winningBoard[1][i]
+                pieces[winningBoard[1][i]] -= 2
             #For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
             for piece in pieces:
                 if pieces[piece] >= 2:
@@ -408,6 +422,14 @@ def predict_final_board(board):
                     winningBoard[2][i] = piece
                     pieces[piece] -= 2
     return winningBoard
+
+def calculate_h_n_manhattan_distance(board):
+    goal_state = predict_final_board(board)
+    counter = 0
+    for i in range(0, len(board[0])):
+        counter += manhattan_distance(board, goal_state[2][i], 0, i)
+        counter += manhattan_distance(board, goal_state[0][i], 2, i)
+    return counter
 
 def calculate_h_n(board):
     counter = 0
