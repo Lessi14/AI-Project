@@ -238,15 +238,14 @@ def create_end_game_file():
 def solve_board(boardSetUp):
     global finalFileOutput
     boardStartTime = time.time()
-    a_star_search_algorithm(boardSetUp)
+    iterative_best_first_search_backup_list_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime*1000)) + "ms\n"
 
 def best_first_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    pieces = count_pieces_in_board(boardSetUp.board)
-    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board, pieces)
+    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
         print_final_board(start)
@@ -264,10 +263,11 @@ def best_first_search_algorithm(boardSetUp):
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
                 continue
-            heuristic = calculate_h_n_permutation_inversions(child_board.board, pieces)
+            heuristic = calculate_h_n_permutation_inversions(child_board.board)
             move = get_e_letter(child_board)
             new_node = Node(0, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
+                print("Solved in "+ str(len(new_node.listOfMoves)))
                 numberOfMoves = 0
                 print_final_board(new_node)
                 return
@@ -276,15 +276,102 @@ def best_first_search_algorithm(boardSetUp):
                 count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
+def iterative_best_first_search_algorithm(boardSetUp):
+    global puzzleConfigFileOutput
+    move_cutoff = 20
+    while True:
+        move_cutoff += 10
+        heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
+        start = Node(0, heuristic, "", boardSetUp)
+        if heuristic == 0:
+            print_final_board(start)
+            return
+        open_list = PriorityQueue()
+        count = 0
+        open_list.put((start.f_n, count, start))
+        count += 1
+        closed_list = {}
+        while not open_list.empty():
+            current = open_list.get()[2]
+            if len(current.listOfMoves)+1 <= move_cutoff:
+                closed_list[get_string_representation(current.boardSetUp.board)] = True
+                children_boards = get_children_boards(current)
+                for child_board in children_boards:
+                    board_string = get_string_representation(child_board.board)
+                    if board_string in closed_list:
+                        continue
+                    heuristic = calculate_h_n_permutation_inversions(child_board.board)
+                    move = get_e_letter(child_board)
+                    new_node = Node(0, heuristic, current.listOfMoves + move, child_board)
+                    if heuristic == 0:
+                        print("Solved in "+ str(len(new_node.listOfMoves)))
+                        print("Move cutoff " + str(move_cutoff))
+                        numberOfMoves = 0
+                        print_final_board(new_node)
+                        return
+                    else:
+                        open_list.put((new_node.f_n, count, new_node))
+                        count += 1
+    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
+
+def iterative_best_first_search_backup_list_algorithm(boardSetUp):
+    global puzzleConfigFileOutput
+    move_cutoff = 10
+    cost_cutoff = 10
+    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
+    start = Node(0, heuristic, "", boardSetUp)
+    if heuristic == 0:
+        print_final_board(start)
+        return
+    larger_open_list = PriorityQueue()
+    count = 0
+    larger_open_list.put((start.f_n, count, start))
+    count += 1
+    while True:
+        move_cutoff += 10
+        cost_cutoff += 10
+        open_list = larger_open_list
+        larger_open_list = PriorityQueue()
+        closed_list = {}
+        while not open_list.empty():
+            current = open_list.get()[2]
+            if len(current.listOfMoves)+1 > move_cutoff or current.f_n > cost_cutoff:
+                larger_open_list.put((current.f_n, count, current))
+                count += 1
+                continue
+            closed_list[get_string_representation(current.boardSetUp.board)] = True
+            children_boards = get_children_boards(current)
+            for child_board in children_boards:
+                board_string = get_string_representation(child_board.board)
+                if board_string in closed_list:
+                    continue
+                heuristic = calculate_h_n_permutation_inversions(child_board.board)
+                move = get_e_letter(child_board)
+                new_node = Node(0, heuristic, current.listOfMoves + move, child_board)
+                if len(new_node.listOfMoves)+1 <= move_cutoff and new_node.f_n <= cost_cutoff:
+                    if heuristic == 0:
+                        print("Solved in "+ str(len(new_node.listOfMoves)))
+                        print("Move cutoff " + str(move_cutoff))
+                        numberOfMoves = 0
+                        print_final_board(new_node)
+                        return
+                    else:
+                        open_list.put((new_node.f_n, count, new_node))
+                        count += 1
+                else:
+                    larger_open_list.put((new_node.f_n, count, new_node))
+                    count += 1
+    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
+
 def ida_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    cost_cutoff = 30
+    cost_cutoff = 20
     while True:
-        cost_cutoff += 5
+        cost_cutoff += 10
         heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
         start = Node(0, heuristic, "", boardSetUp)
         while heuristic >= cost_cutoff:
-            cost_cutoff += 5
+            cost_cutoff += 10
         if heuristic == 0:
             print_final_board(start)
             return
@@ -307,7 +394,8 @@ def ida_star_search_algorithm(boardSetUp):
                     move = get_e_letter(child_board)
                     new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
                     if heuristic == 0:
-                        numberOfMoves = 0
+                        print("Solved in "+ str(current.g_n+1))
+                        print("Cost cutoff " + str(cost_cutoff))
                         print_final_board(new_node)
                         return
                     else:
@@ -319,8 +407,6 @@ def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
     heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
-    while heuristic >= cost_cutoff:
-        cost_cutoff += 5
     if heuristic == 0:
         print_final_board(start)
         return
@@ -342,7 +428,7 @@ def a_star_search_algorithm(boardSetUp):
             move = get_e_letter(child_board)
             new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
-                numberOfMoves = 0
+                print("Solved in "+ str(current.g_n+1))
                 print_final_board(new_node)
                 return
             else:
@@ -359,7 +445,7 @@ def get_e_letter(boardSetUp):
 
 def print_final_board(node):
     global finalFileOutput, numberOfMoves, puzzleConfigFileOutput, boardNumber
-    numberOfMoves += node.g_n
+    numberOfMoves += len(node.listOfMoves)
     
     finalFileOutput += node.listOfMoves+"\n"
     
