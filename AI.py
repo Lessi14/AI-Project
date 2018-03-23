@@ -276,10 +276,51 @@ def best_first_search_algorithm(boardSetUp):
                 count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
+def ida_star_search_algorithm(boardSetUp):
+    global puzzleConfigFileOutput
+    cost_cutoff = 30
+    while True:
+        cost_cutoff += 5
+        heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
+        start = Node(0, heuristic, "", boardSetUp)
+        while heuristic >= cost_cutoff:
+            cost_cutoff += 5
+        if heuristic == 0:
+            print_final_board(start)
+            return
+        open_list = PriorityQueue()
+        count = 0
+        open_list.put((start.f_n, count, start))
+        count += 1
+        closed_list = {}
+    
+        while not open_list.empty():
+            current = open_list.get()[2]
+            closed_list[get_string_representation(current.boardSetUp.board)] = True
+            children_boards = get_children_boards(current)
+            for child_board in children_boards:
+                board_string = get_string_representation(child_board.board)
+                if board_string in closed_list:
+                    continue
+                heuristic = calculate_h_n_permutation_inversions(child_board.board)
+                if heuristic+current.g_n+1 <= cost_cutoff:
+                    move = get_e_letter(child_board)
+                    new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
+                    if heuristic == 0:
+                        numberOfMoves = 0
+                        print_final_board(new_node)
+                        return
+                    else:
+                        open_list.put((new_node.f_n, count, new_node))
+                        count += 1
+    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
+
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
     heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
+    while heuristic >= cost_cutoff:
+        cost_cutoff += 5
     if heuristic == 0:
         print_final_board(start)
         return
@@ -288,6 +329,7 @@ def a_star_search_algorithm(boardSetUp):
     open_list.put((start.f_n, count, start))
     count += 1
     closed_list = {}
+
     while not open_list.empty():
         current = open_list.get()[2]
         closed_list[get_string_representation(current.boardSetUp.board)] = True
