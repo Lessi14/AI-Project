@@ -232,7 +232,8 @@ def create_end_game_file():
     file = open("output.txt", "w+")
     file.write(finalFileOutput)
     file.write(str(numberOfMoves))
-    file.write("Total time is " + str(totalTime) + " seconds")
+    file.write("\nTotal time is " + str(totalTime) + " seconds\n")
+    file.write("Average moves: " + str(numberOfMoves/boardNumber))
 
 
 def solve_board(boardSetUp):
@@ -316,8 +317,8 @@ def iterative_best_first_search_algorithm(boardSetUp):
 
 def iterative_best_first_search_backup_list_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    move_cutoff = 10
-    cost_cutoff = 10
+    move_cutoff = 0
+    cost_cutoff = 0
     heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
@@ -328,8 +329,8 @@ def iterative_best_first_search_backup_list_algorithm(boardSetUp):
     larger_open_list.put((start.f_n, count, start))
     count += 1
     while True:
-        move_cutoff += 10
-        cost_cutoff += 10
+        move_cutoff += 7
+        cost_cutoff += 3
         open_list = larger_open_list
         larger_open_list = PriorityQueue()
         closed_list = {}
@@ -352,6 +353,7 @@ def iterative_best_first_search_backup_list_algorithm(boardSetUp):
                     if heuristic == 0:
                         print("Solved in "+ str(len(new_node.listOfMoves)))
                         print("Move cutoff " + str(move_cutoff))
+                        print("Cost cutoff " + str(cost_cutoff))
                         numberOfMoves = 0
                         print_final_board(new_node)
                         return
