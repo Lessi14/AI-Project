@@ -232,6 +232,7 @@ def create_end_game_file():
     file = open("output.txt", "w+")
     file.write(finalFileOutput)
     file.write(str(numberOfMoves))
+    file.write("Total time is " + str(totalTime) + " seconds")
 
 
 def solve_board(boardSetUp):
@@ -336,7 +337,9 @@ def predict_final_board(board):
     winningBoard = copy.deepcopy(board)
     for i in range(0, 5):
         #If this piece in row 1 can be copied to row 3, do that
-        if pieces[winningBoard[0][i]] >= 2:
+        if winningBoard[0][i] == winningBoard[2][i]:
+            pieces[winningBoard[0][1]] -= 2
+        elif pieces[winningBoard[0][i]] >= 2:
             winningBoard[2][i] = winningBoard[0][i]
             pieces[winningBoard[0][i]] -= 2
         #Else if piece in row 3 can be copied to row 1, do that
