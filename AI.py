@@ -243,6 +243,38 @@ def solve_board(boardSetUp):
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime*1000)) + "ms\n"
 
+def best_first_search_algorithm(boardSetUp):
+    global puzzleConfigFileOutput
+    pieces = count_pieces_in_board(boardSetUp.board)
+    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board, pieces)
+    start = Node(0, heuristic, "", boardSetUp)
+    if heuristic == 0:
+        print_final_board(start)
+        return
+    open_list = PriorityQueue()
+    count = 0
+    open_list.put((start.f_n, count, start))
+    count += 1
+    closed_list = {}
+    while not open_list.empty():
+        current = open_list.get()[2]
+        closed_list[get_string_representation(current.boardSetUp.board)] = True
+        children_boards = get_children_boards(current)
+        for child_board in children_boards:
+            board_string = get_string_representation(child_board.board)
+            if board_string in closed_list:
+                continue
+            heuristic = calculate_h_n_permutation_inversions(child_board.board, pieces)
+            move = get_e_letter(child_board)
+            new_node = Node(0, heuristic, current.listOfMoves + move, child_board)
+            if heuristic == 0:
+                numberOfMoves = 0
+                print_final_board(new_node)
+                return
+            else:
+                open_list.put((new_node.f_n, count, new_node))
+                count += 1
+    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
@@ -304,6 +336,7 @@ def calculate_h_n_permutation_inversions(board):
         goal_reduced.append(goal_state[2][i])
         board_reduced.append(board[2][i])
     
+    #Add the counter to differentiate different instances of the same candy type
     for i in range(len(goal_reduced)):
         goal_reduced[i] = goal_reduced[i] + str(i)
         board_reduced[i] = board_reduced[i] + str(i)
@@ -326,7 +359,7 @@ def get_position(element, array):
             return i
     return -1
 
-def predict_final_board(board):
+def count_pieces_in_board(board):
     pieces = {}
     #Count how many of each piece we have on the board
     for row in board:
@@ -334,11 +367,24 @@ def predict_final_board(board):
             if letter not in pieces:
                 pieces[letter] = 0
             pieces[letter] += 1
+    return pieces
+
+def predict_final_board(board):
+    pieces = count_pieces_in_board(board)
     winningBoard = copy.deepcopy(board)
+    
+    #We make a first pass through the row to look at columns that are already mirrored
+    #We don't want to change these rows
     for i in range(0, 5):
-        #If this piece in row 1 can be copied to row 3, do that
         if winningBoard[0][i] == winningBoard[2][i]:
             pieces[winningBoard[0][1]] -= 2
+    
+    allRowsHandled = True
+    for i in range(0, 5):
+        #If they are equal, we've already taken them into account in the above loop, so skip now
+        if winningBoard[0][i] == winningBoard[2][i]:
+            continue
+        #If this piece in row 1 can be copied to row 3, do that
         elif pieces[winningBoard[0][i]] >= 2:
             winningBoard[2][i] = winningBoard[0][i]
             pieces[winningBoard[0][i]] -= 2
@@ -346,7 +392,16 @@ def predict_final_board(board):
         elif pieces[winningBoard[2][i]] >= 2:
             winningBoard[0][i] = winningBoard[2][i]
             pieces[winningBoard[2][i]] -= 2
-            #Otherwise, pick a random piece that has 2 or more of it on the board and place it on both rows
+        else:
+            allRowsHandled = False
+    
+    if not allRowsHandled:
+        #One final loop through to handle cases where neither the top nor bottom row could be copied
+        for i in range(0, 5):
+            #Skip all cases we already handled
+            if winningBoard[0][i] == winningBoard[2][i]:
+                continue
+            #For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
             for piece in pieces:
                 if pieces[piece] >= 2:
                     winningBoard[0][i] = piece
