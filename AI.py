@@ -235,14 +235,19 @@ def create_end_game_file():
     file.write("\nTotal time is " + str(totalTime) + " seconds\n")
     file.write("Average moves: " + str(numberOfMoves/boardNumber))
 
-
+def get_e_letter(boardSetUp):
+    letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
+    index = boardSetUp.x + boardSetUp.y*5
+    return letters[index]
+    
 def solve_board(boardSetUp):
     global finalFileOutput
     boardStartTime = time.time()
-    iterative_best_first_search_backup_list_algorithm(boardSetUp)
+    best_first_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime*1000)) + "ms\n"
+
 
 def best_first_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
@@ -407,7 +412,7 @@ def ida_star_search_algorithm(boardSetUp):
 
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
+    heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
         print_final_board(start)
@@ -426,7 +431,7 @@ def a_star_search_algorithm(boardSetUp):
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
                 continue
-            heuristic = calculate_h_n_permutation_inversions(child_board.board)
+            heuristic = calculate_h_n_manhattan_distance(child_board.board)
             move = get_e_letter(child_board)
             new_node = Node(current.g_n+1, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
@@ -437,13 +442,6 @@ def a_star_search_algorithm(boardSetUp):
                 open_list.put((new_node.f_n, count, new_node))
                 count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
-
-
-def get_e_letter(boardSetUp):
-    letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
-    index = boardSetUp.x + boardSetUp.y*5
-    return letters[index]
-
 
 def print_final_board(node):
     global finalFileOutput, numberOfMoves, puzzleConfigFileOutput, boardNumber
@@ -505,16 +503,16 @@ def predict_final_board(board):
     
     #We make a first pass through the row to look at columns that are already mirrored
     #We don't want to change these rows
-    '''for i in range(0, 5):
+    for i in range(0, 5):
         if winningBoard[0][i] == winningBoard[2][i]:
             #pieces[winningBoard[0][1]] -= 2
-            pieces[winningBoard[0][i]] -= 2'''
+            pieces[winningBoard[0][i]] -= 2
     
     allRowsHandled = True
     for i in range(0, 5):
         #If they are equal, we've already taken them into account in the above loop, so skip now
-        #if winningBoard[0][i] == winningBoard[2][i]:
-        #    continue
+        if winningBoard[0][i] == winningBoard[2][i]:
+            continue
         #If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
             if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
@@ -554,14 +552,69 @@ def predict_final_board(board):
     return winningBoard
 
 def calculate_h_n_manhattan_distance(board):
-    goal_state = predict_final_board(board)
-    counter = 0
-    for i in range(0, len(board[0])):
-        counter += manhattan_distance(board, goal_state[2][i], 0, i)
-        counter += manhattan_distance(board, goal_state[0][i], 2, i)
-    return counter
+    #print("------------------------")
+    pieces = count_pieces_in_board(board)
+    winningBoard = copy.deepcopy(board)
+    score = 0
+    winningBoard2 = copy.deepcopy(board)
+     
+    allRowsHandled = True
+    for i in range(0, 5):
+        #If they are equal, we've already taken them into account in the above loop, so skip now
+        if winningBoard[0][i] == winningBoard[2][i]:
+            pieces[winningBoard[0][i]] -= 2
+            continue
+        #If either row can be copied, we need to decide which one should be copied
+        if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
+            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+                winningBoard[2][i] = winningBoard[0][i]
+                pieces[winningBoard[0][i]] -= 2
+                score += manhattan_distance(board, winningBoard[0][i], 0, i)
+            else:
+                winningBoard[0][i] = winningBoard[2][i]
+                pieces[winningBoard[2][i]] -= 2
+                score += manhattan_distance(board, winningBoard[2][i], 2, i)
+        #If this piece in row 1 can be copied to row 3, do that
+        elif pieces[winningBoard[0][i]] >= 2:
+            winningBoard[2][i] = winningBoard[0][i]
+            pieces[winningBoard[0][i]] -= 2
+            score += manhattan_distance(board, winningBoard[0][i], 0, i)
+        #Else if piece in row 3 can be copied to row 1, do that
+        elif pieces[winningBoard[2][i]] >= 2:
+            winningBoard[0][i] = winningBoard[2][i]
+            pieces[winningBoard[2][i]] -= 2
+            score += manhattan_distance(board, winningBoard[2][i], 2, i)
+        else:
+            #print(str(winningBoard) + "\n")
+            #print(str(i) + "\n")
+            #print(str(winningBoard2) + "\n")
+            allRowsHandled = False
+    
+    if not allRowsHandled:
+        #One final loop through to handle cases where neither the top nor bottom row could be copied
+        for i in range(0, 5):
+            #Skip all cases we already handled
+            if winningBoard[0][i] == winningBoard[2][i]:
+                continue
+            #If the middle row can be copied, do that
+            elif pieces[winningBoard[1][i]] >= 2:
+                winningBoard[0][i] = winningBoard[1][i]
+                winningBoard[2][i] = winningBoard[1][i]
+                pieces[winningBoard[1][i]] -= 2
+                score += 2
+            #For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
+            for piece in pieces:
+                if pieces[piece] >= 2:
+                    winningBoard[0][i] = piece
+                    winningBoard[2][i] = piece
+                    pieces[piece] -= 2
+                    score += 2
+    #print("+++++++++++++++++++++++")
+    #print(str(winningBoard) + "\n")
+    #print(str(winningBoard2) + "\n")    
+    return score
 
-def calculate_h_n(board):
+def calculate_h_n_simplest(board):
     counter = 0
     for i in range(0, len(board[0])):
        if board[0][i] is not board[2][i]:
@@ -571,6 +624,46 @@ def calculate_h_n(board):
     return counter
 
 def manhattan_distance(board, letter, row, column):
+    #print("-------------------")
+    closest = 1000
+    #print("board: " + str(board) +", letter: " + letter + ", row: " + str(row) + ", column: " + str(column) + "\n")
+    
+    for j in range(0, 5):
+        currentValueRow0 = 10000
+        currentValueRow2 = 10000
+        currentValueRow1 = 10000
+        if(column >= j):
+            currentValueRow1 = column - j + 1
+        else: 
+            currentValueRow1 = j - column + 1
+        if column > j:
+            if row == 0:
+                currentValueRow0 = column - j + 2
+                currentValueRow2 = column - j
+            else: 
+                currentValueRow0 = column - j
+                currentValueRow2 = column - j + 2
+        elif column < j: 
+            if row == 0:
+                currentValueRow0 = j - column + 2
+                currentValueRow2 = j - column
+            else:
+                currentValueRow0 = j - column
+                currentValueRow2 = j - column + 2
+        if board[2][j] == letter and closest > currentValueRow2:
+            #print("This is the row " + str(2) + " with a value of " + str(currentValueRow2) + " for letter " + board[2][j] + "\n")
+            closest = currentValueRow2    
+        if board[0][j] == letter and closest > currentValueRow0:
+            #print("This is the row " + str(0) + " with a value of " + str(currentValueRow0) + " for letter " + board[0][j] + "\n")
+            closest = currentValueRow0 
+        if board[1][j] == letter and closest > currentValueRow1:
+            #print("This is the row " + str(1) + " with a value of " + str(currentValueRow1) + " for letter " + board[1][j] + "\n")
+            closest = currentValueRow1            
+    #print("Closest is " + str(closest))            
+    #print("------------------------")
+    return closest    
+    
+def manhattan_distance_v1(board, letter, row, column):
     if letter == 'e':
         return 1000000
     if row != 2 and board[row+1][column] == letter:
@@ -595,6 +688,7 @@ def manhattan_distance(board, letter, row, column):
         return 2
     return 3
 
+    
 def get_string_representation(board):
     string = ""
     for row in board:
@@ -649,7 +743,6 @@ def solve_file_problems(filename):
     boardNumber = 0
     numberOfMoves = 0
     totalTime = 0
-
 
 def getBoardSetup(filename):
     boardsetup = []
