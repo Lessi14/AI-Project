@@ -1,13 +1,12 @@
 import argparse
-import copy
 import math
-import random
 import sys
 import time
-
+import copy
 from classes.Moves import Moves
 from classes.Node import Node
 from classes.BoardSetUp import BoardSetUp
+from classes import PuzzleGenerator
 from queue import PriorityQueue
 
 board = [[], [], []]
@@ -735,59 +734,6 @@ def solve_file_problems(filename):
     numberOfMoves = 0
     totalTime = 0
 
-def generatePuzzleFiles(filename):
-    difficulty = input("Choose a difficulty\n1) Novice\n2) Apprentice\n3) Expert\n4) Master\n")
-    while not (difficulty == '1' or difficulty == '2' or difficulty == '3' or difficulty == '4'):
-        difficulty = input("Please insert a valid input.\n")
-    if difficulty == '1':
-        generateNoviceFile(filename)
-    elif difficulty == '2':
-        generateApprenticeFile(filename)
-    elif difficulty == '3':
-        generateExpertFile(filename)
-    elif difficulty == '4':
-        generateMasterFile(filename)
-    sys.exit()
-
-
-def generateNoviceFile(filename):
-    array = ['e', 'r', 'r', 'r', 'r', 'r', 'r', 'b', 'b', 'b', 'b', 'b', 'b', 'w', 'w']
-    generateDifficultyFile(filename, array, 50)
-
-
-def generateApprenticeFile(filename):
-    array = ['e', 'r', 'r', 'r', 'r', 'r', 'r', 'b', 'b', 'b', 'b', 'y', 'y', 'w', 'w']
-    generateDifficultyFile(filename, array, 50)
-
-
-def generateExpertFile(filename):
-    array = ['e', 'r', 'r', 'r', 'r', 'g', 'g', 'b', 'b', 'b', 'b', 'y', 'y', 'w', 'w']
-    generateDifficultyFile(filename, array, 30)
-
-
-def generateMasterFile(filename):
-    array = ['e', 'r', 'r', 'r', 'r', 'g', 'g', 'b', 'b', 'p', 'p', 'y', 'y', 'w', 'w']
-    generateDifficultyFile(filename, array, 10)
-
-
-def generateDifficultyFile(filename, array, numberOfPuzzles):
-    text = ""
-    for i in range(0, numberOfPuzzles):
-        shuffledArray = copy.deepcopy(array)
-        random.shuffle(shuffledArray)
-        for letter in shuffledArray:
-            text += letter + " "
-        text = text.rstrip()
-        text += '\n'
-    text = text.rstrip('\n')
-    generatePuzzleFile(filename, text)
-
-
-def generatePuzzleFile(filename, text):
-    file = open(filename, "w")
-    file.write(text)
-
-
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
@@ -804,7 +750,8 @@ while True:
     elif autoInput == '1':
         solve_file_problems("puzzlefiles/" + args.file)
     elif autoInput == '3':
-        generatePuzzleFiles("puzzlefiles/" + args.file)
+        print(args.file)
+        PuzzleGenerator.generate_puzzle_files()
     else:
         print('Exiting')
         sys.exit()
