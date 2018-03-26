@@ -214,7 +214,7 @@ def get_e_letter(boardSetUp):
 def solve_board(boardSetUp):
     global finalFileOutput
     boardStartTime = time.time()
-    best_first_search_algorithm(boardSetUp)
+    a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime * 1000)) + "ms\n"
@@ -495,8 +495,7 @@ def predict_final_board(board):
             continue
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2,
-                                                                                         i):
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
             else:
@@ -538,7 +537,7 @@ def calculate_h_n_manhattan_distance(board):
     pieces = count_pieces_in_board(board)
     winningBoard = copy.deepcopy(board)
     score = 0
-    winningBoard2 = copy.deepcopy(board)
+    #winningBoard2 = copy.deepcopy(board)
 
     allRowsHandled = True
     for i in range(0, 5):
@@ -548,9 +547,7 @@ def calculate_h_n_manhattan_distance(board):
             continue
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board,
-                                                                                                winningBoard[2][i], 2,
-                                                                                                i):
+            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
                 score += manhattan_distance(board, winningBoard[0][i], 0, i)
@@ -645,7 +642,7 @@ def manhattan_distance(board, letter, row, column):
         if board[1][j] == letter and closest > currentValueRow1:
             # print("This is the row " + str(1) + " with a value of " + str(currentValueRow1) + " for letter " + board[1][j] + "\n")
             closest = currentValueRow1
-            # print("Closest is " + str(closest))
+    # print("Closest is " + str(closest))
     # print("------------------------")
     return closest
 
