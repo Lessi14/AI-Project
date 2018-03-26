@@ -646,6 +646,46 @@ def manhattan_distance(board, letter, row, column):
     # print("------------------------")
     return closest
 
+def manhattan_distance_DM(board, letter, row, column):
+    # print("-------------------")
+    closest = 1000
+    # print("board: " + str(board) +", letter: " + letter + ", row: " + str(row) + ", column: " + str(column) + "\n")
+
+    for j in range(0, 5):
+        currentValueRow0 = 10000
+        currentValueRow2 = 10000
+        currentValueRow1 = 10000
+        if column >= j:
+            currentValueRow1 = column - j + 1
+            if row == 0:
+                currentValueRow0 = column - j + 2
+                currentValueRow2 = column - j
+            else:
+                currentValueRow0 = column - j
+                currentValueRow2 = column - j + 2
+        else:
+            currentValueRow1 = j - column + 1
+
+        if column < j:
+            if row == 0:
+                currentValueRow0 = j - column + 2
+                currentValueRow2 = j - column
+            else:
+                currentValueRow0 = j - column
+                currentValueRow2 = j - column + 2
+        if board[2][j] == letter and closest > currentValueRow2:
+            # print("This is the row " + str(2) + " with a value of " + str(currentValueRow2) + " for letter " + board[2][j] + "\n")
+            closest = currentValueRow2
+        if board[0][j] == letter and closest > currentValueRow0:
+            # print("This is the row " + str(0) + " with a value of " + str(currentValueRow0) + " for letter " + board[0][j] + "\n")
+            closest = currentValueRow0
+        if board[1][j] == letter and closest > currentValueRow1:
+            # print("This is the row " + str(1) + " with a value of " + str(currentValueRow1) + " for letter " + board[1][j] + "\n")
+            closest = currentValueRow1
+    # print("Closest is " + str(closest))
+    # print("------------------------")
+    return closest
+
 
 def manhattan_distance_v1(board, letter, row, column):
     if letter == 'e':
