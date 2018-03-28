@@ -11,8 +11,6 @@ from queue import PriorityQueue
 
 board = [[], [], []]
 
-
-
 # Global variables
 MIN_ROW = 0
 MAX_ROW = 2
@@ -214,7 +212,7 @@ def get_e_letter(boardSetUp):
 def solve_board(boardSetUp):
     global finalFileOutput
     boardStartTime = time.time()
-    a_star_search_algorithm(boardSetUp)
+    best_first_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime * 1000)) + "ms\n"
@@ -222,7 +220,7 @@ def solve_board(boardSetUp):
 
 def best_first_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
+    heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
         print_final_board(start)
@@ -240,7 +238,7 @@ def best_first_search_algorithm(boardSetUp):
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
                 continue
-            heuristic = calculate_h_n_permutation_inversions(child_board.board)
+            heuristic = calculate_h_n_manhattan_distance(child_board.board)
             move = get_e_letter(child_board)
             new_node = Node(0, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
@@ -545,18 +543,9 @@ def calculate_h_n_manhattan_distance(board):
         if winningBoard[0][i] == winningBoard[2][i]:
             pieces[winningBoard[0][i]] -= 2
             continue
-        # If either row can be copied, we need to decide which one should be copied
-        if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
-                winningBoard[2][i] = winningBoard[0][i]
-                pieces[winningBoard[0][i]] -= 2
-                score += manhattan_distance(board, winningBoard[0][i], 0, i)
-            else:
-                winningBoard[0][i] = winningBoard[2][i]
-                pieces[winningBoard[2][i]] -= 2
-                score += manhattan_distance(board, winningBoard[2][i], 2, i)
+
         # If this piece in row 1 can be copied to row 3, do that
-        elif pieces[winningBoard[0][i]] >= 2:
+        if pieces[winningBoard[0][i]] >= 2:
             winningBoard[2][i] = winningBoard[0][i]
             pieces[winningBoard[0][i]] -= 2
             score += manhattan_distance(board, winningBoard[0][i], 0, i)
@@ -565,6 +554,16 @@ def calculate_h_n_manhattan_distance(board):
             winningBoard[0][i] = winningBoard[2][i]
             pieces[winningBoard[2][i]] -= 2
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
+            # If either row can be copied, we need to decide which one should be copied
+        elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
+            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+                winningBoard[2][i] = winningBoard[0][i]
+                pieces[winningBoard[0][i]] -= 2
+                score += manhattan_distance(board, winningBoard[0][i], 0, i)
+            else:
+                winningBoard[0][i] = winningBoard[2][i]
+                pieces[winningBoard[2][i]] -= 2
+                score += manhattan_distance(board, winningBoard[2][i], 2, i)
         else:
             # print(str(winningBoard) + "\n")
             # print(str(i) + "\n")
