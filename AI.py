@@ -801,17 +801,32 @@ def diffCheck(diffChoice):
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
 args = parser.parse_args()
+files = args.file.split(",")
+# print(files[0])
+# print(files[1])
+# print(files[2])
+# print(files[3])
 
 # main loop
 while True:
-    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n4) Exit\n")
+    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n4) Select Difficulty\n5) Exit\n")
     while not autocheck(autoInput):
         autoInput = input("Please insert a valid input.\n")
 
     if autoInput == '2':
         gameLoop(BoardSetUp.getBoardSetup("puzzlefiles/" + args.file))
     elif autoInput == '1':
-        diffInput = input("Select difficulty.\n1) Novice \n2) Apprentice \n3) Expert \n4) Master \n5) Arg file\n\n")
+
+        solve_file_problems("puzzlefiles/" + files[0])
+        # Modify the output
+        # solve_file_problems("puzzlefiles/" + files[1])
+        # solve_file_problems("puzzlefiles/" + files[2])
+        # solve_file_problems("puzzlefiles/" + files[3])
+    elif autoInput == '3':
+        print(args.file)
+        PuzzleGenerator.generate_puzzle_files()
+    elif autoInput == '4':
+        diffInput = input("Select difficulty.\n1) Novice \n2) Apprentice \n3) Expert \n4) Master \n5) Arg file\n")
         while not diffCheck(diffInput):
             diffInput = input("Please insert a valid input.\n")
 
@@ -824,10 +839,7 @@ while True:
         elif diffInput == '4':
             solve_file_problems("puzzlefiles/master.txt")
         elif diffInput == '5':
-            solve_file_problems("puzzlefiles/" + args.file)
-    elif autoInput == '3':
-        print(args.file)
-        PuzzleGenerator.generate_puzzle_files()
+            solve_file_problems("puzzlefiles/" + files[0])
     else:
         print('Exiting')
         sys.exit()
