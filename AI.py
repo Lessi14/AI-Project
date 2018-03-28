@@ -209,10 +209,13 @@ def get_e_letter(boardSetUp):
     return letters[index]
 
 
-def solve_board(boardSetUp):
+def solve_board(boardSetUp, algoChoice):
     global finalFileOutput
     boardStartTime = time.time()
-    best_first_search_algorithm(boardSetUp)
+    if algoChoice == '1':
+        best_first_search_algorithm(boardSetUp)
+    else:
+        a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime * 1000)) + "ms\n"
@@ -491,6 +494,7 @@ def predict_final_board(board):
         # If they are equal, we've already taken them into account in the above loop, so skip now
         if winningBoard[0][i] == winningBoard[2][i]:
             continue
+
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
             if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
@@ -554,7 +558,7 @@ def calculate_h_n_manhattan_distance(board):
             winningBoard[0][i] = winningBoard[2][i]
             pieces[winningBoard[2][i]] -= 2
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
-            # If either row can be copied, we need to decide which one should be copied
+        # If either row can be copied, we need to decide which one should be copied
         elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
             if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
@@ -614,11 +618,10 @@ def manhattan_distance(board, letter, row, column):
         currentValueRow0 = 10000
         currentValueRow2 = 10000
         currentValueRow1 = 10000
-        if (column >= j):
+        if column == j:
             currentValueRow1 = column - j + 1
-        else:
-            currentValueRow1 = j - column + 1
-        if column > j:
+        elif column > j:
+            currentValueRow1 = column - j + 1
             if row == 0:
                 currentValueRow0 = column - j + 2
                 currentValueRow2 = column - j
@@ -626,6 +629,7 @@ def manhattan_distance(board, letter, row, column):
                 currentValueRow0 = column - j
                 currentValueRow2 = column - j + 2
         elif column < j:
+            currentValueRow1 = j - column + 1
             if row == 0:
                 currentValueRow0 = j - column + 2
                 currentValueRow2 = j - column
@@ -745,9 +749,23 @@ def get_valid_moves(boardSetUp):
     return valid_moves
 
 
+def algoTypeCheck(algoChoice):
+    if type(algoChoice) != str:
+        return False
+
+    if algoChoice != '1' and algoChoice != '2':
+        print(algoChoice + " is not valid.")
+        return False
+    return True
+
 def solve_file_problems(filename):
     global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput, finalFileOutput, puzzleConfigFileOutput
     global numberOfMoves
+
+    algoChoice = input("1) best_first_search_algorithm\n2) a_star_search_algorithm\n")
+    while not algoTypeCheck(algoChoice):
+        algoChoice = input("Please insert a valid input.\n")
+
     with open(filename) as file:
         startTime = time.time()
         for line in file:
@@ -758,7 +776,7 @@ def solve_file_problems(filename):
             boardSetUp = BoardSetUp.build_board(line)
             puzzleConfigFileOutput += "\nPuzzle " + str(boardNumber) + " initial configuration\n"
             puzzleConfigFileOutput += get_print_board(boardSetUp) + "\n"
-            solve_board(boardSetUp)
+            solve_board(boardSetUp, algoChoice)
         endTime = time.time()
         totalTime = endTime - startTime
     create_output_file_board_state()
