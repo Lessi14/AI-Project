@@ -11,8 +11,6 @@ from queue import PriorityQueue
 
 board = [[], [], []]
 
-
-
 # Global variables
 MIN_ROW = 0
 MAX_ROW = 2
@@ -211,10 +209,13 @@ def get_e_letter(boardSetUp):
     return letters[index]
 
 
-def solve_board(boardSetUp):
+def solve_board(boardSetUp, algoChoice):
     global finalFileOutput
     boardStartTime = time.time()
-    a_star_search_algorithm(boardSetUp)
+    if algoChoice == '1':
+        best_first_search_algorithm(boardSetUp)
+    else:
+        a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime * 1000)) + "ms\n"
@@ -222,7 +223,7 @@ def solve_board(boardSetUp):
 
 def best_first_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
-    heuristic = calculate_h_n_permutation_inversions(boardSetUp.board)
+    heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
         print_final_board(start)
@@ -240,7 +241,7 @@ def best_first_search_algorithm(boardSetUp):
             board_string = get_string_representation(child_board.board)
             if board_string in closed_list:
                 continue
-            heuristic = calculate_h_n_permutation_inversions(child_board.board)
+            heuristic = calculate_h_n_manhattan_distance(child_board.board)
             move = get_e_letter(child_board)
             new_node = Node(0, heuristic, current.listOfMoves + move, child_board)
             if heuristic == 0:
@@ -493,6 +494,7 @@ def predict_final_board(board):
         # If they are equal, we've already taken them into account in the above loop, so skip now
         if winningBoard[0][i] == winningBoard[2][i]:
             continue
+
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
             if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
@@ -545,18 +547,9 @@ def calculate_h_n_manhattan_distance(board):
         if winningBoard[0][i] == winningBoard[2][i]:
             pieces[winningBoard[0][i]] -= 2
             continue
-        # If either row can be copied, we need to decide which one should be copied
-        if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
-                winningBoard[2][i] = winningBoard[0][i]
-                pieces[winningBoard[0][i]] -= 2
-                score += manhattan_distance(board, winningBoard[0][i], 0, i)
-            else:
-                winningBoard[0][i] = winningBoard[2][i]
-                pieces[winningBoard[2][i]] -= 2
-                score += manhattan_distance(board, winningBoard[2][i], 2, i)
+
         # If this piece in row 1 can be copied to row 3, do that
-        elif pieces[winningBoard[0][i]] >= 2:
+        if pieces[winningBoard[0][i]] >= 2:
             winningBoard[2][i] = winningBoard[0][i]
             pieces[winningBoard[0][i]] -= 2
             score += manhattan_distance(board, winningBoard[0][i], 0, i)
@@ -565,6 +558,16 @@ def calculate_h_n_manhattan_distance(board):
             winningBoard[0][i] = winningBoard[2][i]
             pieces[winningBoard[2][i]] -= 2
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
+        # If either row can be copied, we need to decide which one should be copied
+        elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
+            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+                winningBoard[2][i] = winningBoard[0][i]
+                pieces[winningBoard[0][i]] -= 2
+                score += manhattan_distance(board, winningBoard[0][i], 0, i)
+            else:
+                winningBoard[0][i] = winningBoard[2][i]
+                pieces[winningBoard[2][i]] -= 2
+                score += manhattan_distance(board, winningBoard[2][i], 2, i)
         else:
             # print(str(winningBoard) + "\n")
             # print(str(i) + "\n")
@@ -615,11 +618,10 @@ def manhattan_distance(board, letter, row, column):
         currentValueRow0 = 10000
         currentValueRow2 = 10000
         currentValueRow1 = 10000
-        if (column >= j):
+        if column == j:
             currentValueRow1 = column - j + 1
-        else:
-            currentValueRow1 = j - column + 1
-        if column > j:
+        elif column > j:
+            currentValueRow1 = column - j + 1
             if row == 0:
                 currentValueRow0 = column - j + 2
                 currentValueRow2 = column - j
@@ -627,6 +629,7 @@ def manhattan_distance(board, letter, row, column):
                 currentValueRow0 = column - j
                 currentValueRow2 = column - j + 2
         elif column < j:
+            currentValueRow1 = j - column + 1
             if row == 0:
                 currentValueRow0 = j - column + 2
                 currentValueRow2 = j - column
@@ -746,9 +749,23 @@ def get_valid_moves(boardSetUp):
     return valid_moves
 
 
+def algoTypeCheck(algoChoice):
+    if type(algoChoice) != str:
+        return False
+
+    if algoChoice != '1' and algoChoice != '2':
+        print(algoChoice + " is not valid.")
+        return False
+    return True
+
 def solve_file_problems(filename):
     global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput, finalFileOutput, puzzleConfigFileOutput
     global numberOfMoves
+
+    algoChoice = input("1) best_first_search_algorithm\n2) a_star_search_algorithm\n")
+    while not algoTypeCheck(algoChoice):
+        algoChoice = input("Please insert a valid input.\n")
+
     with open(filename) as file:
         startTime = time.time()
         for line in file:
@@ -759,7 +776,7 @@ def solve_file_problems(filename):
             boardSetUp = BoardSetUp.build_board(line)
             puzzleConfigFileOutput += "\nPuzzle " + str(boardNumber) + " initial configuration\n"
             puzzleConfigFileOutput += get_print_board(boardSetUp) + "\n"
-            solve_board(boardSetUp)
+            solve_board(boardSetUp, algoChoice)
         endTime = time.time()
         totalTime = endTime - startTime
     create_output_file_board_state()
@@ -771,24 +788,58 @@ def solve_file_problems(filename):
     numberOfMoves = 0
     totalTime = 0
 
+def diffCheck(diffChoice):
+    if type(diffChoice) != str:
+        return False
+
+    if diffChoice != '1' and diffChoice != '2' and diffChoice != '2' and diffChoice != '3' and diffChoice != '4' and diffChoice != '5':
+        print(diffChoice + " is not valid.")
+        return False
+    return True
+
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
 args = parser.parse_args()
+files = args.file.split(",")
+# print(files[0])
+# print(files[1])
+# print(files[2])
+# print(files[3])
 
 # main loop
 while True:
-    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n4) Exit\n")
+    autoInput = input("1) Automatic mode\n2) Manual mode\n3) Generate puzzle files\n4) Select Difficulty\n5) Exit\n")
     while not autocheck(autoInput):
         autoInput = input("Please insert a valid input.\n")
 
     if autoInput == '2':
         gameLoop(BoardSetUp.getBoardSetup("puzzlefiles/" + args.file))
     elif autoInput == '1':
-        solve_file_problems("puzzlefiles/" + args.file)
+
+        solve_file_problems("puzzlefiles/" + files[0])
+        # Modify the output
+        # solve_file_problems("puzzlefiles/" + files[1])
+        # solve_file_problems("puzzlefiles/" + files[2])
+        # solve_file_problems("puzzlefiles/" + files[3])
     elif autoInput == '3':
         print(args.file)
         PuzzleGenerator.generate_puzzle_files()
+    elif autoInput == '4':
+        diffInput = input("Select difficulty.\n1) Novice \n2) Apprentice \n3) Expert \n4) Master \n5) Arg file\n")
+        while not diffCheck(diffInput):
+            diffInput = input("Please insert a valid input.\n")
+
+        if diffInput == '1':
+            solve_file_problems("puzzlefiles/novice.txt")
+        elif diffInput == '2':
+            solve_file_problems("puzzlefiles/apprentice.txt")
+        elif diffInput == '3':
+            solve_file_problems("puzzlefiles/expert.txt")
+        elif diffInput == '4':
+            solve_file_problems("puzzlefiles/master.txt")
+        elif diffInput == '5':
+            solve_file_problems("puzzlefiles/" + files[0])
     else:
         print('Exiting')
         sys.exit()
