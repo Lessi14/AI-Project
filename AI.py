@@ -23,6 +23,8 @@ totalTime = 0
 finalFileOutput = ""
 puzzleConfigFileOutput = ""
 boardNumber = 0
+#replace user
+outputpath = r"C:\Users\b_brazie\Desktop\AI-Project\\"
 
 
 def gameLoop(boardSetup):
@@ -86,7 +88,7 @@ def autocheck(autoinput):
     if type(autoinput) != str:
         return False
 
-    if (autoinput != '1' and autoinput != '2' and autoinput != '3' and autoinput != '4'):
+    if (autoinput != '1' and autoinput != '2' and autoinput != '3' and autoinput != '4' and autoInput != '5'):
         print(autoinput + " is not valid.")
         return False
     return True
@@ -190,13 +192,13 @@ def get_print_board(boardSetUp):
 
 def create_output_file_board_state():
     global puzzleConfigFileOutput
-    file = open("output/boards.txt", "w+")
+    file = open(outputpath + r"output\boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
 
 def create_end_game_file():
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
-    file = open("output/output.txt", "w+")
+    file = open(outputpath + r"output\output.txt", "w+")
     file.write(finalFileOutput)
     file.write(str(numberOfMoves))
     file.write("\nTotal time is " + str(totalTime) + " seconds\n")
@@ -814,14 +816,14 @@ while True:
         autoInput = input("Please insert a valid input.\n")
 
     if autoInput == '2':
-        gameLoop(BoardSetUp.getBoardSetup("puzzlefiles/" + args.file))
+        gameLoop(BoardSetUp.getBoardSetup("\puzzlefiles\\" + args.file))
     elif autoInput == '1':
 
-        solve_file_problems("puzzlefiles/" + files[0])
+        solve_file_problems(outputpath + "\puzzlefiles\\" + files[0])
         # Modify the output
-        # solve_file_problems("puzzlefiles/" + files[1])
-        # solve_file_problems("puzzlefiles/" + files[2])
-        # solve_file_problems("puzzlefiles/" + files[3])
+        # solve_file_problems("\puzzlefiles\" + files[1])
+        # solve_file_problems("\puzzlefiles\" + files[2])
+        # solve_file_problems("\puzzlefiles\" + files[3])
     elif autoInput == '3':
         print(args.file)
         PuzzleGenerator.generate_puzzle_files()
@@ -831,15 +833,15 @@ while True:
             diffInput = input("Please insert a valid input.\n")
 
         if diffInput == '1':
-            solve_file_problems("puzzlefiles/novice.txt")
+            solve_file_problems(outputpath + r"\puzzlefiles\novice.txt")
         elif diffInput == '2':
-            solve_file_problems("puzzlefiles/apprentice.txt")
+            solve_file_problems(outputpath + r"\puzzlefiles\apprentice.txt")
         elif diffInput == '3':
-            solve_file_problems("puzzlefiles/expert.txt")
+            solve_file_problems(outputpath + r"\puzzlefiles\expert.txt")
         elif diffInput == '4':
-            solve_file_problems("puzzlefiles/master.txt")
+            solve_file_problems(outputpath + r"\puzzlefiles\master.txt")
         elif diffInput == '5':
-            solve_file_problems("puzzlefiles/" + files[0])
+            solve_file_problems(outputpath + r"\puzzlefiles\\" + files[0])
     else:
         print('Exiting')
         sys.exit()
