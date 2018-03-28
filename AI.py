@@ -788,6 +788,15 @@ def solve_file_problems(filename):
     numberOfMoves = 0
     totalTime = 0
 
+def diffCheck(diffChoice):
+    if type(diffChoice) != str:
+        return False
+
+    if diffChoice != '1' and diffChoice != '2' and diffChoice != '2' and diffChoice != '3' and diffChoice != '4' and diffChoice != '5':
+        print(diffChoice + " is not valid.")
+        return False
+    return True
+
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
@@ -802,7 +811,20 @@ while True:
     if autoInput == '2':
         gameLoop(BoardSetUp.getBoardSetup("puzzlefiles/" + args.file))
     elif autoInput == '1':
-        solve_file_problems("puzzlefiles/" + args.file)
+        diffInput = input("Select difficulty.\n1) Novice \n2) Apprentice \n3) Expert \n4) Master \n5) Arg file\n\n")
+        while not diffCheck(diffInput):
+            diffInput = input("Please insert a valid input.\n")
+
+        if diffInput == '1':
+            solve_file_problems("puzzlefiles/novice.txt")
+        elif diffInput == '2':
+            solve_file_problems("puzzlefiles/apprentice.txt")
+        elif diffInput == '3':
+            solve_file_problems("puzzlefiles/expert.txt")
+        elif diffInput == '4':
+            solve_file_problems("puzzlefiles/master.txt")
+        elif diffInput == '5':
+            solve_file_problems("puzzlefiles/" + args.file)
     elif autoInput == '3':
         print(args.file)
         PuzzleGenerator.generate_puzzle_files()
