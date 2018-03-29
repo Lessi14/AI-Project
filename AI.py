@@ -3,6 +3,7 @@ import math
 import sys
 import time
 import copy
+import re
 from classes.Moves import Moves
 from classes.Node import Node
 from classes.BoardSetUp import BoardSetUp
@@ -25,7 +26,9 @@ finalFileOutput = ""
 puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
-outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
+#outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
+# outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
+outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
 
 
 def gameLoop(boardSetup):
@@ -100,7 +103,7 @@ def inputcheck(userInputCheck):
     if type(userInputCheck) != str:
         return False
     if (userInputCheck != 'right' and userInputCheck != 'left'
-        and userInputCheck != 'up' and userInputCheck != 'down'):
+            and userInputCheck != 'up' and userInputCheck != 'down'):
         print(userInputCheck + " is not valid.")
         return False
     return True
@@ -193,13 +196,17 @@ def get_print_board(boardSetUp):
 
 def create_output_file_board_state():
     global puzzleConfigFileOutput
-    file = open(outputpath + r"output\boards.txt", "w+")
+    file = open(outputpath + r"\output\boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
 
-def create_end_game_file():
+def create_end_game_file(fileName):
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
-    file = open(outputpath + r"output\output.txt", "w+")
+    if "input" in fileName:
+        lastPart = re.search(r'(?<=\\input)\d.txt$', fileName).group(0)
+        file = open(outputpath + r"\output\output" + lastPart[0] + ".txt", "w+")
+    else:
+        file = open(outputpath + r"\output\output.txt", "w+")
     file.write(finalFileOutput)
     file.write(str(numberOfMoves))
     file.write("\nTotal time is " + str(totalTime) + " seconds\n")
@@ -518,7 +525,8 @@ def predict_final_board(board):
 
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2,
+                                                                                         i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
             else:
@@ -560,7 +568,7 @@ def calculate_h_n_manhattan_distance(board):
     pieces = count_pieces_in_board(board)
     winningBoard = copy.deepcopy(board)
     score = 0
-    #winningBoard2 = copy.deepcopy(board)
+    # winningBoard2 = copy.deepcopy(board)
 
     allRowsHandled = True
     for i in range(0, 5):
@@ -581,7 +589,9 @@ def calculate_h_n_manhattan_distance(board):
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
         # If either row can be copied, we need to decide which one should be copied
         elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board,
+                                                                                                winningBoard[2][i], 2,
+                                                                                                i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
                 score += manhattan_distance(board, winningBoard[0][i], 0, i)
@@ -610,7 +620,7 @@ def calculate_h_n_manhattan_distance(board):
                 score += manhattan_distance(board, winningBoard[1][i], 0, i)
                 #score += 2
             # For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
-            else: 
+            else:
                 for piece in pieces:
                     if pieces[piece] >= 2:
                         winningBoard[0][i] = piece
@@ -675,6 +685,7 @@ def manhattan_distance(board, letter, row, column):
     # print("Closest is " + str(closest))
     # print("------------------------")
     return closest
+
 
 def manhattan_distance_DM(board, letter, row, column):
     # print("-------------------")
@@ -785,13 +796,10 @@ def algoTypeCheck(algoChoice):
         return False
     return True
 
-def solve_file_problems(filename):
+
+def solve_file_problems(filename, algoChoice):
     global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput, finalFileOutput, puzzleConfigFileOutput
     global numberOfMoves
-
-    algoChoice = input("1) best_first_search_algorithm\n2) a_star_search_algorithm\n")
-    while not algoTypeCheck(algoChoice):
-        algoChoice = input("Please insert a valid input.\n")
 
     with open(filename) as file:
         startTime = time.time()
@@ -807,13 +815,14 @@ def solve_file_problems(filename):
         endTime = time.time()
         totalTime = endTime - startTime
     create_output_file_board_state()
-    create_end_game_file()
+    create_end_game_file(filename)
     print("The boards have been solved. Please check the the output files.\n")
     finalFileOutput = ""
     puzzleConfigFileOutput = ""
     boardNumber = 0
     numberOfMoves = 0
     totalTime = 0
+
 
 def diffCheck(diffChoice):
     if type(diffChoice) != str:
@@ -824,15 +833,11 @@ def diffCheck(diffChoice):
         return False
     return True
 
+
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
 args = parser.parse_args()
-files = args.file.split(",")
-# print(files[0])
-# print(files[1])
-# print(files[2])
-# print(files[3])
 
 # main loop
 while True:
@@ -841,15 +846,26 @@ while True:
         autoInput = input("Please insert a valid input.\n")
 
     if autoInput == '2':
+        if args.file is None or args.file == '':
+            print('The file does not exist.')
+            exit()
+
+        solve_file_problems(outputpath + r"/puzzlefiles/" + args.file)
         path = "//puzzlefiles//" + args.file
-        gameLoop(BoardSetUp.getBoardSetup(BoardSetUp,path))
+        gameLoop(BoardSetUp.getBoardSetup(BoardSetUp, path))
     elif autoInput == '1':
 
-        solve_file_problems(outputpath + "/puzzlefiles//" + files[0])
-        # Modify the output
-        # solve_file_problems("\puzzlefiles\" + files[1])
-        # solve_file_problems("\puzzlefiles\" + files[2])
-        # solve_file_problems("\puzzlefiles\" + files[3])
+        algoChoice = input("1) best_first_search_algorithm\n2) a_star_search_algorithm\n")
+        while not algoTypeCheck(algoChoice):
+            algoChoice = input("Please insert a valid input.\n")
+
+        if args.file is None or args.file == '':
+            solve_file_problems(outputpath + "\puzzlefiles\input1.txt", algoChoice)
+            solve_file_problems(outputpath + "\puzzlefiles\input2.txt", algoChoice)
+            solve_file_problems(outputpath + "\puzzlefiles\input3.txt", algoChoice)
+            solve_file_problems(outputpath + "\puzzlefiles\input4.txt", algoChoice)
+        else:
+            solve_file_problems(outputpath + "\puzzlefiles\\" + args.file, algoChoice)
     elif autoInput == '3':
         print(args.file)
         PuzzleGenerator.generate_puzzle_files()
@@ -857,6 +873,10 @@ while True:
         diffInput = input("Select difficulty.\n1) Novice \n2) Apprentice \n3) Expert \n4) Master \n5) Arg file\n")
         while not diffCheck(diffInput):
             diffInput = input("Please insert a valid input.\n")
+
+        algoChoice = input("1) best_first_search_algorithm\n2) a_star_search_algorithm\n")
+        while not algoTypeCheck(algoChoice):
+            algoChoice = input("Please insert a valid input.\n")
 
         if diffInput == '1':
             solve_file_problems(outputpath + r"/puzzlefiles/novice.txt")
@@ -867,7 +887,10 @@ while True:
         elif diffInput == '4':
             solve_file_problems(outputpath + r"/puzzlefiles/master.txt")
         elif diffInput == '5':
-            solve_file_problems(outputpath + r"/puzzlefiles/" + files[0])
+            if args.file is None or args.file == '':
+                print('The file does not exist.')
+                exit()
+            solve_file_problems(outputpath + r"/puzzlefiles/" + args.file, algoChoice)
     else:
         print('Exiting')
         sys.exit()
