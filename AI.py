@@ -27,8 +27,8 @@ puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
 #outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-# outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
-outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
+outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
+#outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
 
 
 def gameLoop(boardSetup):
@@ -269,7 +269,7 @@ def best_first_search_algorithm(boardSetUp):
                 if totalTime >= TIMEOUT_TIME:
                     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
                     finalFileOutput += "NO SOLUTION TO BOARD\n"
-                    print("Board took more than 5 seconds to solve, so it timed out")
+                    print("Board took more than " + str(TIMEOUT_TIME) + " seconds to solve, so it timed out")
                     return
                 else:
                     startTime = endTime
@@ -445,7 +445,7 @@ def a_star_search_algorithm(boardSetUp):
                 if totalTime >= TIMEOUT_TIME:
                     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
                     finalFileOutput += "NO SOLUTION TO BOARD\n"
-                    print("Board took more than 5 seconds to solve, so it timed out")
+                    print("Board took more than " + str(TIMEOUT_TIME) + " seconds to solve, so it timed out")
                     return
                 else:
                     startTime = endTime
@@ -529,8 +529,7 @@ def predict_final_board(board):
 
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2,
-                                                                                         i):
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
             else:
