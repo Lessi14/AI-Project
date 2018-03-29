@@ -6,7 +6,6 @@ import os
 
 def generate_puzzle_file(filename, text):
     file = open(os.getcwd() +"/puzzlefiles/" + filename, "w")
-    print(file)
     file.write(text)
 
 
