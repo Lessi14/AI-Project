@@ -225,7 +225,7 @@ def solve_board(boardSetUp, algoChoice):
 
 
 def best_first_search_algorithm(boardSetUp):
-    global puzzleConfigFileOutput, TIMEOUT_TIME
+    global puzzleConfigFileOutput, TIMEOUT_TIME, finalFileOutput
     totalTime = 0
     startTime = time.time()
     heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
@@ -260,6 +260,8 @@ def best_first_search_algorithm(boardSetUp):
                 endTime = time.time()
                 totalTime += endTime - startTime
                 if totalTime >= TIMEOUT_TIME:
+                    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
+                    finalFileOutput += "NO SOLUTION TO BOARD\n"
                     print("Board took more than 5 seconds to solve, so it timed out")
                     return
                 else:
@@ -399,7 +401,7 @@ def ida_star_search_algorithm(boardSetUp):
 
 
 def a_star_search_algorithm(boardSetUp):
-    global puzzleConfigFileOutput
+    global puzzleConfigFileOutput, TIMEOUT_TIME, finalFileOutput
     heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
     totalTime = 0
     startTime = time.time()
@@ -434,6 +436,8 @@ def a_star_search_algorithm(boardSetUp):
                 endTime = time.time()
                 totalTime += endTime - startTime
                 if totalTime >= TIMEOUT_TIME:
+                    puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
+                    finalFileOutput += "NO SOLUTION TO BOARD\n"
                     print("Board took more than 5 seconds to solve, so it timed out")
                     return
                 else:
