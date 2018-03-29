@@ -20,11 +20,12 @@ numberOfMoves = 0
 startTime = 0
 endTime = 0
 totalTime = 0
+TIMEOUT_TIME = 10
 finalFileOutput = ""
 puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
-outputpath = r"C:\Users\b_brazie\Desktop\AI-Project\\"
+outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project\\"
 
 
 def gameLoop(boardSetup):
@@ -224,7 +225,9 @@ def solve_board(boardSetUp, algoChoice):
 
 
 def best_first_search_algorithm(boardSetUp):
-    global puzzleConfigFileOutput
+    global puzzleConfigFileOutput, TIMEOUT_TIME
+    totalTime = 0
+    startTime = time.time()
     heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
@@ -254,6 +257,13 @@ def best_first_search_algorithm(boardSetUp):
             else:
                 open_list.put((new_node.f_n, count, new_node))
                 count += 1
+                endTime = time.time()
+                totalTime += endTime - startTime
+                if totalTime >= TIMEOUT_TIME:
+                    print("Board took more than 5 seconds to solve, so it timed out")
+                    return
+                else:
+                    startTime = endTime
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
 
@@ -391,6 +401,8 @@ def ida_star_search_algorithm(boardSetUp):
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
     heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
+    totalTime = 0
+    startTime = time.time()
     start = Node(0, heuristic, "", boardSetUp)
     if heuristic == 0:
         print_final_board(start)
@@ -419,6 +431,13 @@ def a_star_search_algorithm(boardSetUp):
             else:
                 open_list.put((new_node.f_n, count, new_node))
                 count += 1
+                endTime = time.time()
+                totalTime += endTime - startTime
+                if totalTime >= TIMEOUT_TIME:
+                    print("Board took more than 5 seconds to solve, so it timed out")
+                    return
+                else:
+                    startTime = endTime
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
 
