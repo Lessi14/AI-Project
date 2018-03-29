@@ -25,7 +25,7 @@ finalFileOutput = ""
 puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
-outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project\\"
+outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
 
 
 def gameLoop(boardSetup):
@@ -581,7 +581,7 @@ def calculate_h_n_manhattan_distance(board):
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
         # If either row can be copied, we need to decide which one should be copied
         elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(winningBoard, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
                 score += manhattan_distance(board, winningBoard[0][i], 0, i)
@@ -606,14 +606,20 @@ def calculate_h_n_manhattan_distance(board):
                 winningBoard[0][i] = winningBoard[1][i]
                 winningBoard[2][i] = winningBoard[1][i]
                 pieces[winningBoard[1][i]] -= 2
-                score += 2
+                score += manhattan_distance(board, winningBoard[1][i], 2, i)
+                score += manhattan_distance(board, winningBoard[1][i], 0, i)
+                #score += 2
             # For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
-            for piece in pieces:
-                if pieces[piece] >= 2:
-                    winningBoard[0][i] = piece
-                    winningBoard[2][i] = piece
-                    pieces[piece] -= 2
-                    score += 2
+            else: 
+                for piece in pieces:
+                    if pieces[piece] >= 2:
+                        winningBoard[0][i] = piece
+                        winningBoard[2][i] = piece
+                        pieces[piece] -= 2
+                        score += manhattan_distance(board, piece, 2, i)
+                        score += manhattan_distance(board, piece, 0, i)
+                        #score += 2
+                        break
     # print("+++++++++++++++++++++++")
     # print(str(winningBoard) + "\n")
     # print(str(winningBoard2) + "\n")
