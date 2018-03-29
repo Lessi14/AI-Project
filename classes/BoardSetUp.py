@@ -1,4 +1,4 @@
-
+import os
 class BoardSetUp:
     def __init__(self, x, y, board):
         self.x = x
@@ -19,7 +19,7 @@ class BoardSetUp:
 
     def getBoardSetup(self, filename):
         boardsetup = []
-        with open("../ " + filename) as file:
+        with open(os.path.abspath("../AI-Project" + filename)) as file:
             for line in file:
                 if 'e' not in line or ('r' not in line and 'b' not in line):
                     print("This board is not valid. Board: " + line)
