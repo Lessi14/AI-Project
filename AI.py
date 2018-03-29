@@ -27,7 +27,9 @@ puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
 #outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
+#outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
+outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
+
 #the main loop
 def gameLoop(boardSetup):
     global numberOfManualMoves, totalTime, numberOfMoves
@@ -191,7 +193,7 @@ def get_print_board(boardSetUp):
 def create_output_file_board_state(fileName):
     global puzzleConfigFileOutput
 
-    if "input" in fileName:
+    if "input" in fileName and re.search(r'(?<=\\input)\d.txt$', fileName) is not None:
         lastPart = re.search(r'(?<=\\input)\d.txt$', fileName).group(0)
         file = open(outputpath + r"\output\boards" + lastPart[0] + ".txt", "w+")
     else:
@@ -201,7 +203,7 @@ def create_output_file_board_state(fileName):
 #creates end game file
 def create_end_game_file(fileName):
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
-    if "input" in fileName:
+    if "input" in fileName and re.search(r'(?<=\\input)\d.txt$', fileName) is not None:
         lastPart = re.search(r'(?<=\\input)\d.txt$', fileName).group(0)
         file = open(outputpath + r"\output\output" + lastPart[0] + ".txt", "w+")
     else:
