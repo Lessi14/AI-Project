@@ -26,9 +26,8 @@ finalFileOutput = ""
 puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
-#outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-#outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
+outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
+#outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
 
 #the main loop
 def gameLoop(boardSetup):
@@ -372,16 +371,6 @@ def calculate_h_n_manhattan_distance(board):
             winningBoard[0][i] = winningBoard[2][i]
             pieces[winningBoard[2][i]] -= 2
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
-        # If either row can be copied, we need to decide which one should be copied
-        elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
-                winningBoard[2][i] = winningBoard[0][i]
-                pieces[winningBoard[0][i]] -= 2
-                score += manhattan_distance(board, winningBoard[0][i], 0, i)
-            else:
-                winningBoard[0][i] = winningBoard[2][i]
-                pieces[winningBoard[2][i]] -= 2
-                score += manhattan_distance(board, winningBoard[2][i], 2, i)
         else:
             allRowsHandled = False
 
