@@ -27,8 +27,8 @@ puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
 #outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
-#outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
+#outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
+outputpath = r"C:\Users\Bruce\PycharmProjects\AI-Project"
 
 #the main loop
 def gameLoop(boardSetup):
@@ -194,9 +194,13 @@ def get_print_board(boardSetUp):
     return string
 
 #creates output file
-def create_output_file_board_state():
+def create_output_file_board_state(fileName):
     global puzzleConfigFileOutput
-    file = open(outputpath + r"\output\boards.txt", "w+")
+    if "input" in fileName:
+        lastPart = re.search(r'(?<=\\input)\d.txt$', fileName).group(0)
+        file = open(outputpath + r"\output\boards" + lastPart[0] + ".txt", "w+")
+    else:
+        file = open(outputpath + r"\output\boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
 #creates end game file
@@ -803,7 +807,7 @@ def solve_file_problems(filename, algoChoice):
             solve_board(boardSetUp, algoChoice)
         endTime = time.time()
         totalTime = endTime - startTime
-    create_output_file_board_state()
+    create_output_file_board_state(filename)
     create_end_game_file(filename)
     print("The boards have been solved. Please check the the output files.\n")
     finalFileOutput = ""
