@@ -27,8 +27,6 @@ puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
 #outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-# outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
-outputpath = r"C:\Users\Di\Desktop\Concordia\2017-2018\COMP472\AI-Project"
 
 #the main loop
 def gameLoop(boardSetup):
@@ -194,9 +192,15 @@ def get_print_board(boardSetUp):
     return string
 
 #creates output file
-def create_output_file_board_state():
+
+def create_output_file_board_state(fileName):
     global puzzleConfigFileOutput
-    file = open(outputpath + r"\output\boards.txt", "w+")
+
+    if "input" in fileName:
+        lastPart = re.search(r'(?<=\\input)\d.txt$', fileName).group(0)
+        file = open(outputpath + r"\output\boards" + lastPart[0] + ".txt", "w+")
+    else:
+        file = open(outputpath + r"\output\boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
 #creates end game file
@@ -269,12 +273,11 @@ def best_first_search_algorithm(boardSetUp):
                 if totalTime >= TIMEOUT_TIME:
                     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
                     finalFileOutput += "NO SOLUTION TO BOARD\n"
-                    print("Board took more than 5 seconds to solve, so it timed out")
+                    print("Board took more than " + str(TIMEOUT_TIME) + " seconds to solve, so it timed out")
                     return
                 else:
                     startTime = endTime
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
-
 
 #search algorithm
 def a_star_search_algorithm(boardSetUp):
@@ -315,7 +318,7 @@ def a_star_search_algorithm(boardSetUp):
                 if totalTime >= TIMEOUT_TIME:
                     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
                     finalFileOutput += "NO SOLUTION TO BOARD\n"
-                    print("Board took more than 5 seconds to solve, so it timed out")
+                    print("Board took more than " + str(TIMEOUT_TIME) + " seconds to solve, so it timed out")
                     return
                 else:
                     startTime = endTime
@@ -330,6 +333,7 @@ def print_final_board(node):
 
     puzzleConfigFileOutput += "Final configuration\n"
     puzzleConfigFileOutput += get_print_board(node.boardSetUp) + "\n"
+
 
 #retrieves the position
 def get_position(element, array):
@@ -369,8 +373,8 @@ def predict_final_board(board):
 
         # If either row can be copied, we need to decide which one should be copied
         if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2,
-                                                                                         i):
+
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
             else:
@@ -479,6 +483,7 @@ def calculate_h_n_manhattan_distance(board):
     # print(str(winningBoard2) + "\n")
     return score
 
+
 #calculates manhattan distance
 def manhattan_distance(board, letter, row, column):
     closest = 1000
@@ -575,7 +580,7 @@ def solve_file_problems(filename, algoChoice):
             solve_board(boardSetUp, algoChoice)
         endTime = time.time()
         totalTime = endTime - startTime
-    create_output_file_board_state()
+    create_output_file_board_state(filename)
     create_end_game_file(filename)
     print("The boards have been solved. Please check the the output files.\n")
     finalFileOutput = ""
