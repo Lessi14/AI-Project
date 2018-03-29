@@ -26,8 +26,8 @@ finalFileOutput = ""
 puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
-outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-#outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
+#outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
+outputpath = r"C:\Users\Bruce\PycharmProjects\AI-Project"
 
 #the main loop
 def gameLoop(boardSetup):
@@ -220,7 +220,7 @@ def get_e_letter(boardSetUp):
 
 #tries to solve the board
 def solve_board(boardSetUp, algoChoice):
-    global finalFileOutput
+    global finalFileOutput, totalTime
     boardStartTime = time.time()
     if algoChoice == '1':
         best_first_search_algorithm(boardSetUp)
@@ -228,6 +228,7 @@ def solve_board(boardSetUp, algoChoice):
         a_star_search_algorithm(boardSetUp)
     boardEndTime = time.time()
     boardTime = boardEndTime - boardStartTime
+    totalTime += boardTime
     finalFileOutput += str(math.ceil(boardTime * 1000)) + "ms\n"
 
 #search algorithm
@@ -540,7 +541,6 @@ def solve_file_problems(filename, algoChoice):
     global numberOfMoves
 
     with open(filename) as file:
-        startTime = time.time()
         for line in file:
             if 'e' not in line or ('r' not in line and 'b' not in line):
                 print("This board is not valid. Board: " + line)
@@ -550,8 +550,6 @@ def solve_file_problems(filename, algoChoice):
             puzzleConfigFileOutput += "\nPuzzle " + str(boardNumber) + " initial configuration\n"
             puzzleConfigFileOutput += get_print_board(boardSetUp) + "\n"
             solve_board(boardSetUp, algoChoice)
-        endTime = time.time()
-        totalTime = endTime - startTime
     create_output_file_board_state(filename)
     create_end_game_file(filename)
     print("The boards have been solved. Please check the the output files.\n")
