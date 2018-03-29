@@ -883,13 +883,13 @@ while True:
             algoChoice = input("Please insert a valid input.\n")
 
         if diffInput == '1':
-            solve_file_problems(outputpath + r"/puzzlefiles/novice.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/novice.txt", algoChoice)
         elif diffInput == '2':
-            solve_file_problems(outputpath + r"/puzzlefiles/apprentice.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/apprentice.txt", algoChoice)
         elif diffInput == '3':
-            solve_file_problems(outputpath + r"/puzzlefiles/expert.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/expert.txt", algoChoice)
         elif diffInput == '4':
-            solve_file_problems(outputpath + r"/puzzlefiles/master.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/master.txt", algoChoice)
         elif diffInput == '5':
             if args.file is None or args.file == '':
                 print('The file does not exist.')
