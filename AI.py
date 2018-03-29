@@ -30,7 +30,7 @@ boardNumber = 0
 # outputpath = "D:\\Desktop\\Sean's stuff\\Sean's Stuff\\University\\COMP 472\\AI-Project"
 outputpath = r"C:\Users\Edouard\PycharmProjects\AI-Project"
 
-
+#the main loop
 def gameLoop(boardSetup):
     global numberOfManualMoves, totalTime, numberOfMoves
     counter = 0
@@ -77,7 +77,7 @@ def gameLoop(boardSetup):
             numberOfMoves = 0
             startTime = time.time()
 
-
+#checks if end game is reached
 def endgamecheck(endgameinput):
     if type(endgameinput) != str:
         return False
@@ -87,7 +87,7 @@ def endgamecheck(endgameinput):
         return False
     return True
 
-
+#verifies if input is valid
 def autocheck(autoinput):
     if type(autoinput) != str:
         return False
@@ -140,7 +140,7 @@ def verifyMove(move, boardSetUp):
         return False
     return True
 
-
+#makes a move in the board
 def makeMove(move, boardSetUp):
     tempy = boardSetUp.y
     tempx = boardSetUp.x
@@ -173,11 +173,11 @@ def checkWinningCondition(board):
 
     return True
 
-
+#prints the board
 def print_board(boardSetUp):
     print(get_print_board(boardSetUp))
 
-
+#retrieves the printed board
 def get_print_board(boardSetUp):
     string = "---------------\n"
     for row in boardSetUp.board:
@@ -193,13 +193,13 @@ def get_print_board(boardSetUp):
         string += "---------------\n"
     return string
 
-
+#creates output file
 def create_output_file_board_state():
     global puzzleConfigFileOutput
     file = open(outputpath + r"\output\boards.txt", "w+")
     file.write(puzzleConfigFileOutput)
 
-
+#creates end game file
 def create_end_game_file(fileName):
     global finalFileOutput, numberOfMoves, totalTime, boardNumber
     if "input" in fileName:
@@ -212,13 +212,13 @@ def create_end_game_file(fileName):
     file.write("\nTotal time is " + str(totalTime) + " seconds\n")
     file.write("Average moves: " + str(numberOfMoves / boardNumber))
 
-
+#retrieves the letter e
 def get_e_letter(boardSetUp):
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O']
     index = boardSetUp.x + boardSetUp.y * 5
     return letters[index]
 
-
+#tries to solve the board
 def solve_board(boardSetUp, algoChoice):
     global finalFileOutput
     boardStartTime = time.time()
@@ -230,7 +230,7 @@ def solve_board(boardSetUp, algoChoice):
     boardTime = boardEndTime - boardStartTime
     finalFileOutput += str(math.ceil(boardTime * 1000)) + "ms\n"
 
-
+#search algorithm
 def best_first_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput, TIMEOUT_TIME, finalFileOutput
     totalTime = 0
@@ -275,7 +275,7 @@ def best_first_search_algorithm(boardSetUp):
                     startTime = endTime
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
-
+#search algorithm
 def iterative_best_first_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
     move_cutoff = 20
@@ -314,7 +314,7 @@ def iterative_best_first_search_algorithm(boardSetUp):
                         count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
-
+#search algorithm
 def iterative_best_first_search_backup_list_algorithm(boardSetUp):
     global puzzleConfigFileOutput
     move_cutoff = 0
@@ -365,7 +365,7 @@ def iterative_best_first_search_backup_list_algorithm(boardSetUp):
                     count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
-
+#search algorithm
 def ida_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput
     cost_cutoff = 20
@@ -406,7 +406,7 @@ def ida_star_search_algorithm(boardSetUp):
                         count += 1
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
-
+#search algorithm
 def a_star_search_algorithm(boardSetUp):
     global puzzleConfigFileOutput, TIMEOUT_TIME, finalFileOutput
     heuristic = calculate_h_n_manhattan_distance(boardSetUp.board)
@@ -451,7 +451,7 @@ def a_star_search_algorithm(boardSetUp):
                     startTime = endTime
     puzzleConfigFileOutput += "NO SOLUTION TO BOARD"
 
-
+#prints the final board
 def print_final_board(node):
     global finalFileOutput, numberOfMoves, puzzleConfigFileOutput, boardNumber
     numberOfMoves += len(node.listOfMoves)
@@ -461,7 +461,7 @@ def print_final_board(node):
     puzzleConfigFileOutput += "Final configuration\n"
     puzzleConfigFileOutput += get_print_board(node.boardSetUp) + "\n"
 
-
+#calculates h(n) using permutation inversions
 def calculate_h_n_permutation_inversions(board):
     goal_state = predict_final_board(board)
     goal_reduced = []
@@ -491,14 +491,14 @@ def calculate_h_n_permutation_inversions(board):
 
     return estimation
 
-
+#retrieves the position
 def get_position(element, array):
     for i in range(len(array)):
         if array[i] == element:
             return i
     return -1
 
-
+#counts the pieces present in the board
 def count_pieces_in_board(board):
     pieces = {}
     # Count how many of each piece we have on the board
@@ -509,7 +509,7 @@ def count_pieces_in_board(board):
             pieces[letter] += 1
     return pieces
 
-
+#tries to predict the final board
 def predict_final_board(board):
     pieces = count_pieces_in_board(board)
     winningBoard = copy.deepcopy(board)
@@ -566,7 +566,7 @@ def predict_final_board(board):
                     pieces[piece] -= 2
     return winningBoard
 
-
+#calculates h(n) using manhattan distance
 def calculate_h_n_manhattan_distance(board):
     # print("------------------------")
     pieces = count_pieces_in_board(board)
@@ -639,7 +639,7 @@ def calculate_h_n_manhattan_distance(board):
     # print(str(winningBoard2) + "\n")
     return score
 
-
+#calculates h(n)
 def calculate_h_n_simplest(board):
     counter = 0
     for i in range(0, len(board[0])):
@@ -649,7 +649,7 @@ def calculate_h_n_simplest(board):
             # counter += 1
     return counter
 
-
+#calculates manhattan distance
 def manhattan_distance(board, letter, row, column):
     closest = 1000
 
@@ -683,7 +683,7 @@ def manhattan_distance(board, letter, row, column):
             closest = currentValueRow1
     return closest
 
-
+#alternative to manhattan distance
 def manhattan_distance_DM(board, letter, row, column):
     closest = 1000
 
@@ -717,7 +717,7 @@ def manhattan_distance_DM(board, letter, row, column):
             closest = currentValueRow1
     return closest
 
-
+#another alternative to manhattan distance
 def manhattan_distance_v1(board, letter, row, column):
     if letter == 'e':
         return 1000000
@@ -743,7 +743,7 @@ def manhattan_distance_v1(board, letter, row, column):
         return 2
     return 3
 
-
+#retrieves the representation of the column
 def get_string_representation(board):
     string = ""
     for row in board:
@@ -751,7 +751,7 @@ def get_string_representation(board):
             string += column
     return string
 
-
+#retrieves the children boards
 def get_children_boards(parent):
     children_list = []
     valid_moves = get_valid_moves(parent.boardSetUp)
@@ -763,7 +763,7 @@ def get_children_boards(parent):
         children_list.append(boardSetUp)
     return children_list
 
-
+#retrieves valid moves possible
 def get_valid_moves(boardSetUp):
     valid_moves = []
     if verifyMove(Moves.Up, boardSetUp):
@@ -776,7 +776,7 @@ def get_valid_moves(boardSetUp):
         valid_moves.append(Moves.Left)
     return valid_moves
 
-
+#verifies the algorithm chosen
 def algoTypeCheck(algoChoice):
     if type(algoChoice) != str:
         return False
@@ -786,7 +786,7 @@ def algoTypeCheck(algoChoice):
         return False
     return True
 
-
+#Solves the board, measures the time it takes to solve and outputs to a file
 def solve_file_problems(filename, algoChoice):
     global startTime, endTime, totalTime, boardNumber, puzzleConfigFileOutput, finalFileOutput, puzzleConfigFileOutput
     global numberOfMoves
@@ -813,7 +813,7 @@ def solve_file_problems(filename, algoChoice):
     numberOfMoves = 0
     totalTime = 0
 
-
+#Verifies if the choice is valid or not
 def diffCheck(diffChoice):
     if type(diffChoice) != str:
         return False
