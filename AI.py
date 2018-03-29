@@ -816,10 +816,11 @@ while True:
         autoInput = input("Please insert a valid input.\n")
 
     if autoInput == '2':
-        gameLoop(BoardSetUp.getBoardSetup("\puzzlefiles\\" + args.file))
+        path = "//puzzlefiles//" + args.file
+        gameLoop(BoardSetUp.getBoardSetup(BoardSetUp,path))
     elif autoInput == '1':
 
-        solve_file_problems(outputpath + "\puzzlefiles\\" + files[0])
+        solve_file_problems(outputpath + "/puzzlefiles//" + files[0])
         # Modify the output
         # solve_file_problems("\puzzlefiles\" + files[1])
         # solve_file_problems("\puzzlefiles\" + files[2])
@@ -833,15 +834,15 @@ while True:
             diffInput = input("Please insert a valid input.\n")
 
         if diffInput == '1':
-            solve_file_problems(outputpath + r"\puzzlefiles\novice.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/novice.txt")
         elif diffInput == '2':
-            solve_file_problems(outputpath + r"\puzzlefiles\apprentice.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/apprentice.txt")
         elif diffInput == '3':
-            solve_file_problems(outputpath + r"\puzzlefiles\expert.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/expert.txt")
         elif diffInput == '4':
-            solve_file_problems(outputpath + r"\puzzlefiles\master.txt")
+            solve_file_problems(outputpath + r"/puzzlefiles/master.txt")
         elif diffInput == '5':
-            solve_file_problems(outputpath + r"\puzzlefiles\\" + files[0])
+            solve_file_problems(outputpath + r"/puzzlefiles/" + files[0])
     else:
         print('Exiting')
         sys.exit()
