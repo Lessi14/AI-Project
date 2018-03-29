@@ -596,7 +596,6 @@ while True:
             print('The file does not exist.')
             exit()
 
-        solve_file_problems(outputpath + r"/puzzlefiles/" + args.file)
         path = "//puzzlefiles//" + args.file
         gameLoop(BoardSetUp.getBoardSetup(BoardSetUp, path))
     elif autoInput == '1':
