@@ -47,11 +47,11 @@ def generate_puzzle_files():
     while not (difficulty == '1' or difficulty == '2' or difficulty == '3' or difficulty == '4'):
         difficulty = input("Please insert a valid input.\n")
     if difficulty == '1':
-        generate_novice_file("novice.txt")
+        generate_novice_file("input1.txt")
     elif difficulty == '2':
-        generate_apprentice_file("apprentice.txt")
+        generate_apprentice_file("input2.txt")
     elif difficulty == '3':
-        generate_expert_file("expert.txt")
+        generate_expert_file("input3.txt")
     elif difficulty == '4':
-        generate_master_file("master.txt")
+        generate_master_file("input4.txt")
     sys.exit()

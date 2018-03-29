@@ -231,3 +231,60 @@ def manhattan_distance_v1(board, letter, row, column):
      if column > 1 and board[row][column - 2] == letter:
          return 2
      return 3
+     
+#tries to predict the final board
+def predict_final_board(board):
+    pieces = count_pieces_in_board(board)
+    winningBoard = copy.deepcopy(board)
+
+    # We make a first pass through the row to look at columns that are already mirrored
+    # We don't want to change these rows
+    for i in range(0, 5):
+        if winningBoard[0][i] == winningBoard[2][i]:
+            # pieces[winningBoard[0][1]] -= 2
+            pieces[winningBoard[0][i]] -= 2
+
+    allRowsHandled = True
+    for i in range(0, 5):
+        # If they are equal, we've already taken them into account in the above loop, so skip now
+        if winningBoard[0][i] == winningBoard[2][i]:
+            continue
+
+        # If either row can be copied, we need to decide which one should be copied
+        if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
+
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+                winningBoard[2][i] = winningBoard[0][i]
+                pieces[winningBoard[0][i]] -= 2
+            else:
+                winningBoard[0][i] = winningBoard[2][i]
+                pieces[winningBoard[2][i]] -= 2
+        # If this piece in row 1 can be copied to row 3, do that
+        elif pieces[winningBoard[0][i]] >= 2:
+            winningBoard[2][i] = winningBoard[0][i]
+            pieces[winningBoard[0][i]] -= 2
+        # Else if piece in row 3 can be copied to row 1, do that
+        elif pieces[winningBoard[2][i]] >= 2:
+            winningBoard[0][i] = winningBoard[2][i]
+            pieces[winningBoard[2][i]] -= 2
+        else:
+            allRowsHandled = False
+
+    if not allRowsHandled:
+        # One final loop through to handle cases where neither the top nor bottom row could be copied
+        for i in range(0, 5):
+            # Skip all cases we already handled
+            if winningBoard[0][i] == winningBoard[2][i]:
+                continue
+            # If the middle row can be copied, do that
+            elif pieces[winningBoard[1][i]] >= 2:
+                winningBoard[0][i] = winningBoard[1][i]
+                winningBoard[2][i] = winningBoard[1][i]
+                pieces[winningBoard[1][i]] -= 2
+            # For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
+            for piece in pieces:
+                if pieces[piece] >= 2:
+                    winningBoard[0][i] = piece
+                    winningBoard[2][i] = piece
+                    pieces[piece] -= 2
+    return winningBoard

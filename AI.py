@@ -27,7 +27,7 @@ puzzleConfigFileOutput = ""
 boardNumber = 0
 #replace user
 #outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
-
+outputpath = r"D:\Winter 2018\COMP 472\Project\AI-Project\\"
 #the main loop
 def gameLoop(boardSetup):
     global numberOfManualMoves, totalTime, numberOfMoves
@@ -95,7 +95,6 @@ def autocheck(autoinput):
         return False
     return True
 
-
 # Checks if the user input is valid
 def inputcheck(userInputCheck):
     if type(userInputCheck) != str:
@@ -105,7 +104,6 @@ def inputcheck(userInputCheck):
         print(userInputCheck + " is not valid.")
         return False
     return True
-
 
 # Transforms the string input into the Enums used locally
 def input_to_enum(inputCheck):
@@ -117,7 +115,6 @@ def input_to_enum(inputCheck):
         return Moves.Left
     if inputCheck.lower() == "down":
         return Moves.Down
-
 
 # Verifies if the move is along the grid
 def verifyMove(move, boardSetUp):
@@ -162,7 +159,6 @@ def makeMove(move, boardSetUp):
     boardSetUp.board[previousY][previousX] = boardSetUp.board[currentY][currentX]
     boardSetUp.board[currentY][currentX] = "e"
 
-
 # Checks if the grid reaches the winning condition (the goal state)
 def checkWinningCondition(board):
     for i in range(0, 5):
@@ -192,7 +188,6 @@ def get_print_board(boardSetUp):
     return string
 
 #creates output file
-
 def create_output_file_board_state(fileName):
     global puzzleConfigFileOutput
 
@@ -213,8 +208,8 @@ def create_end_game_file(fileName):
         file = open(outputpath + r"\output\output.txt", "w+")
     file.write(finalFileOutput)
     file.write(str(numberOfMoves))
-    file.write("\nTotal time is " + str(totalTime) + " seconds\n")
-    file.write("Average moves: " + str(numberOfMoves / boardNumber))
+    print("Total time is " + str(totalTime) + " seconds")
+    print("Average moves: " + str(numberOfMoves / boardNumber))
 
 #retrieves the letter e
 def get_e_letter(boardSetUp):
@@ -334,7 +329,6 @@ def print_final_board(node):
     puzzleConfigFileOutput += "Final configuration\n"
     puzzleConfigFileOutput += get_print_board(node.boardSetUp) + "\n"
 
-
 #retrieves the position
 def get_position(element, array):
     for i in range(len(array)):
@@ -353,70 +347,11 @@ def count_pieces_in_board(board):
             pieces[letter] += 1
     return pieces
 
-#tries to predict the final board
-def predict_final_board(board):
-    pieces = count_pieces_in_board(board)
-    winningBoard = copy.deepcopy(board)
-
-    # We make a first pass through the row to look at columns that are already mirrored
-    # We don't want to change these rows
-    for i in range(0, 5):
-        if winningBoard[0][i] == winningBoard[2][i]:
-            # pieces[winningBoard[0][1]] -= 2
-            pieces[winningBoard[0][i]] -= 2
-
-    allRowsHandled = True
-    for i in range(0, 5):
-        # If they are equal, we've already taken them into account in the above loop, so skip now
-        if winningBoard[0][i] == winningBoard[2][i]:
-            continue
-
-        # If either row can be copied, we need to decide which one should be copied
-        if pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
-                winningBoard[2][i] = winningBoard[0][i]
-                pieces[winningBoard[0][i]] -= 2
-            else:
-                winningBoard[0][i] = winningBoard[2][i]
-                pieces[winningBoard[2][i]] -= 2
-        # If this piece in row 1 can be copied to row 3, do that
-        elif pieces[winningBoard[0][i]] >= 2:
-            winningBoard[2][i] = winningBoard[0][i]
-            pieces[winningBoard[0][i]] -= 2
-        # Else if piece in row 3 can be copied to row 1, do that
-        elif pieces[winningBoard[2][i]] >= 2:
-            winningBoard[0][i] = winningBoard[2][i]
-            pieces[winningBoard[2][i]] -= 2
-        else:
-            allRowsHandled = False
-
-    if not allRowsHandled:
-        # One final loop through to handle cases where neither the top nor bottom row could be copied
-        for i in range(0, 5):
-            # Skip all cases we already handled
-            if winningBoard[0][i] == winningBoard[2][i]:
-                continue
-            # If the middle row can be copied, do that
-            elif pieces[winningBoard[1][i]] >= 2:
-                winningBoard[0][i] = winningBoard[1][i]
-                winningBoard[2][i] = winningBoard[1][i]
-                pieces[winningBoard[1][i]] -= 2
-            # For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
-            for piece in pieces:
-                if pieces[piece] >= 2:
-                    winningBoard[0][i] = piece
-                    winningBoard[2][i] = piece
-                    pieces[piece] -= 2
-    return winningBoard
-
 #calculates h(n) using manhattan distance
 def calculate_h_n_manhattan_distance(board):
-    # print("------------------------")
     pieces = count_pieces_in_board(board)
     winningBoard = copy.deepcopy(board)
     score = 0
-    # winningBoard2 = copy.deepcopy(board)
 
     allRowsHandled = True
     for i in range(0, 5):
@@ -437,9 +372,7 @@ def calculate_h_n_manhattan_distance(board):
             score += manhattan_distance(board, winningBoard[2][i], 2, i)
         # If either row can be copied, we need to decide which one should be copied
         elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
-            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board,
-                                                                                                winningBoard[2][i], 2,
-                                                                                                i):
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
                 winningBoard[2][i] = winningBoard[0][i]
                 pieces[winningBoard[0][i]] -= 2
                 score += manhattan_distance(board, winningBoard[0][i], 0, i)
@@ -448,9 +381,6 @@ def calculate_h_n_manhattan_distance(board):
                 pieces[winningBoard[2][i]] -= 2
                 score += manhattan_distance(board, winningBoard[2][i], 2, i)
         else:
-            # print(str(winningBoard) + "\n")
-            # print(str(i) + "\n")
-            # print(str(winningBoard2) + "\n")
             allRowsHandled = False
 
     if not allRowsHandled:
@@ -466,7 +396,6 @@ def calculate_h_n_manhattan_distance(board):
                 pieces[winningBoard[1][i]] -= 2
                 score += manhattan_distance(board, winningBoard[1][i], 2, i)
                 score += manhattan_distance(board, winningBoard[1][i], 0, i)
-                #score += 2
             # For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
             else:
                 for piece in pieces:
@@ -476,13 +405,66 @@ def calculate_h_n_manhattan_distance(board):
                         pieces[piece] -= 2
                         score += manhattan_distance(board, piece, 2, i)
                         score += manhattan_distance(board, piece, 0, i)
-                        #score += 2
                         break
-    # print("+++++++++++++++++++++++")
-    # print(str(winningBoard) + "\n")
-    # print(str(winningBoard2) + "\n")
     return score
 
+#backup of the calculate_h_n_manhattan_distancemanhattan_distance old version 
+def calculate_h_n_manhattan_distance_backup(board):
+    pieces = count_pieces_in_board(board)
+    winningBoard = copy.deepcopy(board)
+    score = 0
+
+    allRowsHandled = True
+    for i in range(0, 5):
+        # If they are equal, we've already taken them into account in the above loop, so skip now
+        if winningBoard[0][i] == winningBoard[2][i]:
+            pieces[winningBoard[0][i]] -= 2
+            continue
+
+        # If this piece in row 1 can be copied to row 3, do that
+        if pieces[winningBoard[0][i]] >= 2:
+            winningBoard[2][i] = winningBoard[0][i]
+            pieces[winningBoard[0][i]] -= 2
+            score += manhattan_distance(board, winningBoard[0][i], 0, i)
+        # Else if piece in row 3 can be copied to row 1, do that
+        elif pieces[winningBoard[2][i]] >= 2:
+            winningBoard[0][i] = winningBoard[2][i]
+            pieces[winningBoard[2][i]] -= 2
+            score += manhattan_distance(board, winningBoard[2][i], 2, i)
+        # If either row can be copied, we need to decide which one should be copied
+        elif pieces[winningBoard[0][i]] >= 2 and pieces[winningBoard[2][i]] >= 2:
+            if manhattan_distance(board, winningBoard[0][i], 0, i) <= manhattan_distance(board, winningBoard[2][i], 2, i):
+                winningBoard[2][i] = winningBoard[0][i]
+                pieces[winningBoard[0][i]] -= 2
+                score += manhattan_distance(board, winningBoard[0][i], 0, i)
+            else:
+                winningBoard[0][i] = winningBoard[2][i]
+                pieces[winningBoard[2][i]] -= 2
+                score += manhattan_distance(board, winningBoard[2][i], 2, i)
+        else:
+            allRowsHandled = False
+
+    if not allRowsHandled:
+        # One final loop through to handle cases where neither the top nor bottom row could be copied
+        for i in range(0, 5):
+            # Skip all cases we already handled
+            if winningBoard[0][i] == winningBoard[2][i]:
+                continue
+            # If the middle row can be copied, do that
+            elif pieces[winningBoard[1][i]] >= 2:
+                winningBoard[0][i] = winningBoard[1][i]
+                winningBoard[2][i] = winningBoard[1][i]
+                pieces[winningBoard[1][i]] -= 2
+                score += 2
+            # For the others, pick a random piece that has 2 or more of it on the board and place it on both rows
+            else:
+                for piece in pieces:
+                    if pieces[piece] >= 2:
+                        winningBoard[0][i] = piece
+                        winningBoard[2][i] = piece
+                        pieces[piece] -= 2
+                        score += 2
+    return score
 
 #calculates manhattan distance
 def manhattan_distance(board, letter, row, column):
@@ -517,7 +499,6 @@ def manhattan_distance(board, letter, row, column):
         if board[1][j] == letter and closest > currentValueRow1:
             closest = currentValueRow1
     return closest
-
 
 #retrieves the representation of the column
 def get_string_representation(board):
@@ -599,7 +580,6 @@ def diffCheck(diffChoice):
         return False
     return True
 
-
 # Usage: python echoclient.py --host host --port port
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", help="The file with the candy info", default="")
@@ -645,13 +625,13 @@ while True:
             algoChoice = input("Please insert a valid input.\n")
 
         if diffInput == '1':
-            solve_file_problems(outputpath + r"/puzzlefiles/novice.txt", algoChoice)
+            solve_file_problems(outputpath + r"/puzzlefiles/input1.txt", algoChoice)
         elif diffInput == '2':
-            solve_file_problems(outputpath + r"/puzzlefiles/apprentice.txt", algoChoice)
+            solve_file_problems(outputpath + r"/puzzlefiles/input2.txt", algoChoice)
         elif diffInput == '3':
-            solve_file_problems(outputpath + r"/puzzlefiles/expert.txt", algoChoice)
+            solve_file_problems(outputpath + r"/puzzlefiles/input3.txt", algoChoice)
         elif diffInput == '4':
-            solve_file_problems(outputpath + r"/puzzlefiles/master.txt", algoChoice)
+            solve_file_problems(outputpath + r"/puzzlefiles/input4.txt", algoChoice)
         elif diffInput == '5':
             if args.file is None or args.file == '':
                 print('The file does not exist.')
