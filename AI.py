@@ -650,9 +650,7 @@ def calculate_h_n_simplest(board):
 
 
 def manhattan_distance(board, letter, row, column):
-    # print("-------------------")
     closest = 1000
-    # print("board: " + str(board) +", letter: " + letter + ", row: " + str(row) + ", column: " + str(column) + "\n")
 
     for j in range(0, 5):
         currentValueRow0 = 10000
@@ -677,23 +675,16 @@ def manhattan_distance(board, letter, row, column):
                 currentValueRow0 = j - column
                 currentValueRow2 = j - column + 2
         if board[2][j] == letter and closest > currentValueRow2:
-            # print("This is the row " + str(2) + " with a value of " + str(currentValueRow2) + " for letter " + board[2][j] + "\n")
             closest = currentValueRow2
         if board[0][j] == letter and closest > currentValueRow0:
-            # print("This is the row " + str(0) + " with a value of " + str(currentValueRow0) + " for letter " + board[0][j] + "\n")
             closest = currentValueRow0
         if board[1][j] == letter and closest > currentValueRow1:
-            # print("This is the row " + str(1) + " with a value of " + str(currentValueRow1) + " for letter " + board[1][j] + "\n")
             closest = currentValueRow1
-    # print("Closest is " + str(closest))
-    # print("------------------------")
     return closest
 
 
 def manhattan_distance_DM(board, letter, row, column):
-    # print("-------------------")
     closest = 1000
-    # print("board: " + str(board) +", letter: " + letter + ", row: " + str(row) + ", column: " + str(column) + "\n")
 
     for j in range(0, 5):
         currentValueRow0 = 10000
@@ -718,16 +709,11 @@ def manhattan_distance_DM(board, letter, row, column):
                 currentValueRow0 = j - column
                 currentValueRow2 = j - column + 2
         if board[2][j] == letter and closest > currentValueRow2:
-            # print("This is the row " + str(2) + " with a value of " + str(currentValueRow2) + " for letter " + board[2][j] + "\n")
             closest = currentValueRow2
         if board[0][j] == letter and closest > currentValueRow0:
-            # print("This is the row " + str(0) + " with a value of " + str(currentValueRow0) + " for letter " + board[0][j] + "\n")
             closest = currentValueRow0
         if board[1][j] == letter and closest > currentValueRow1:
-            # print("This is the row " + str(1) + " with a value of " + str(currentValueRow1) + " for letter " + board[1][j] + "\n")
             closest = currentValueRow1
-    # print("Closest is " + str(closest))
-    # print("------------------------")
     return closest
 
 
