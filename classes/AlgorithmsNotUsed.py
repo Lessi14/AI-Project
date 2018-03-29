@@ -206,3 +206,28 @@ def manhattan_distance_DM(board, letter, row, column):
         if board[1][j] == letter and closest > currentValueRow1:
             closest = currentValueRow1
     return closest
+
+def manhattan_distance_v1(board, letter, row, column):
+    if letter == 'e':
+        return 1000000
+    if row != 2 and board[row + 1][column] == letter:
+         return 1
+     if row != 0 and board[row - 1][column] == letter:
+         return 1
+     if column != 0 and board[row][column - 1] == letter:
+         return 1
+     if column != 4 and board[row][column + 1] == letter:
+         return 1
+     if column != 4 and row != 2 and board[row + 1][column + 1] == letter:
+         return 2
+     if column != 0 and row != 0 and board[row - 1][column - 1] == letter:
+         return 2
+     if column != 0 and row != 2 and board[row + 1][column - 1] == letter:
+         return 2
+     if column != 4 and row != 0 and board[row - 1][column + 1] == letter:
+         return 2
+     if column < 3 and board[row][column + 2] == letter:
+         return 2
+     if column > 1 and board[row][column - 2] == letter:
+         return 2
+     return 3
